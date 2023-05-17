@@ -1,9 +1,9 @@
-# Titel van project
+# Communication Cubes
 
-**VOORNAAM NAAM:** A B
+**VOORNAAM NAAM:** Cédric Callant
 
-**Sparringpartner:** C D
+**Sparringpartner:** Sybrin Pypaert
 
-**Projectsamenvatting in max 10 woorden:** E
+**Projectsamenvatting in max 10 woorden:** Berichtjes systeem met tekst en lichtkleuren
 
-**Projecttitel:** F
+**Projecttitel:** Communication Cubes
