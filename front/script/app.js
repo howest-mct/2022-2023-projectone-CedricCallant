@@ -1,7 +1,12 @@
 const lanIP = `${window.location.hostname}:5000`;
 const socketio = io(lanIP);
 
-const listenToUI = function () {};
+const listenToUI = function () {
+  document.querySelector('.js-dropdown').addEventListener('click', function(){
+    options = document.querySelector('.js-showColorDD')
+    
+  })
+};
 
 const listenToSocket = function () {
   socketio.on('connect', function () {

@@ -645,15 +645,59 @@ a:active {
 }
 
 .c-dropdown{
-  text-align: left;
   width: 100%;
   font-size: 36px;
   background-color: #8AB9F1;
   border: none;
+  
+  &__small{
+    width: 100%;
+    font-size: 18px;
+    background-color: #8AB9F1;
+    border: none;
+
+    &::placeholder{
+      color: #122C34;
+      font-weight: 700;
+    }
+  }
 
   &__icon{
     height: 32px;
   }
+
+  &::placeholder{
+    color: #122C34;
+    font-weight: 700;
+  }
+}
+
+.c-dropdown-types{
+  height: 36px;
+  width: 100%;
+  border-radius: 10px;
+  border-color: #F5F5F5;
+}
+
+.c-card-history{
+  width: 80%;
+  background-color: $color-text-light;
+  margin-top: 38px;
+  border-radius: 15px;
+
+  &__list{
+    padding: 16px 0 0 0;
+    display: flex;
+    justify-content: space-around;
+  }
+}
+
+.c-table{
+  background-color: #fff;
+  border-collapse: collapse;
+  border-radius: 15px;
+  width: 100%;
+  text-align: center
 }
 
 /*---------------------------------------/*

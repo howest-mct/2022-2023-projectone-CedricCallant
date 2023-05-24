@@ -57,23 +57,45 @@
     </article>
     <article class="c-card-color o-layout">
       <div class="c-card-color__selector">
-        <button class="c-dropdown o-layout o-layout--justify-space-between">#8AB9F1
-          <svg class="c-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-            <path d="M 4.21875 10.78125 L 2.78125 12.21875 L 15.28125 24.71875 L 16 25.40625 L 16.71875 24.71875 L 29.21875 12.21875 L 27.78125 10.78125 L 16 22.5625 Z" />
-          </svg></button>
+        <input class="js-dropdown c-dropdown" type="text" list="colors" placeholder="#8AB9F1" />
+        <datalist class="js-showColorDD" id="colors">
+          <option value="#8AB9F1">#8AB9F1</option>
+        </datalist>
         <p class="u-mb-clear">Cube color</p>
         <p class="c-card-color__name u-mb-clear">Name:</p>
-        <p><strong>Jordy Blue</strong></p>
+        <input class="js-dropdown c-dropdown__small" type="text" list="colornames" placeholder="Jordy Blue" />
+        <datalist class="js-showColorNamesDD" id="colornames">
+          <option value="Jordy Blue">Jordy Blue</option>
+        </datalist>
       </div>
       <div class="c-card-color__idle">
         <p>Idle mode: &nbsp; <strong>ON</strong></p>
         <button class="c-card-color__idle-btn">Turn OFF</button>
         <p class="c-card-color__type">Type:</p>
-        <button class="c-dropdown o-layout o-layout--justify-space-between">#8AB9F1
-          <svg class="c-dropdown__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-            <path d="M 4.21875 10.78125 L 2.78125 12.21875 L 15.28125 24.71875 L 16 25.40625 L 16.71875 24.71875 L 29.21875 12.21875 L 27.78125 10.78125 L 16 22.5625 Z" />
-          </svg></button>
+        <label for="types"></label>
+        <select class="c-dropdown-types" name="types" id="idle_types">
+          <option value="static">static</option>
+          <option value="pulse">pulse</option>
+          <option value="wave">wave</option>
+          <option value="sound">sound</option>
+        </select>
       </div>
+    </article>
+    <article class="c-card-history">
+      <table class="c-table">
+        <thead>
+          <th>Time</th>
+          <th>Type</th>
+          <th>Value</th>
+          <th>Description</th>
+        </thead>
+        <tbody>
+          <td>22/03/2023</td>
+          <td>sensor</td>
+          <td>2G</td>
+          <td>Measures the speed at which the cube has been moved</td>
+        </tbody>
+      </table>
     </article>
   </main>
 </body>
