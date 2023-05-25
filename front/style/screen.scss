@@ -534,9 +534,30 @@ a:active {
   position: fixed;
   background-color: #122C34;
   padding: 20px 0 0 16px;
+
+  @media (max-width: 992px) {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+  
+}
+
+.c-logo__name{
+  @media (max-width: 1200px) {
+    font-size: 26px;
+ }
 }
 
 .c-nav{
+  &__list{
+    @media (max-width: 992px) {
+      display: flex;
+    }  
+  }
   &__link{
     text-decoration: none;
     vertical-align: middle;
@@ -552,8 +573,12 @@ a:active {
 
     &--selected, &:hover{
       background-color: #AFDBF5;
+
     }
-  }
+    @media (max-width: 992px) {
+      display: none;
+   }
+  } 
   &__svg{
     margin: 0 0 0 8px;
     height: 32px;
@@ -563,6 +588,7 @@ a:active {
     &--selected{
       fill: $color-text;
     }
+
   }
 }
 
@@ -577,6 +603,11 @@ a:active {
   margin-left: 20%;
   color: #122C34;
   padding: 16px 0 0 16px;
+
+  @media (max-width: 992px) {
+     margin-left: 0;
+  }
+  
 }
 
 .c-card-power{
@@ -604,6 +635,17 @@ a:active {
   &__status strong{
     color: #00ff00;
   }
+
+
+  
+  @media (max-width: 1280px) {
+     width: 50%;
+  }
+  
+  @media (max-width: 576px) {
+     width: 90%;
+  }
+  
 }
 
 .c-card-color{
@@ -617,6 +659,10 @@ a:active {
     width: 50%;
     background-color: #8AB9F1;
     border-radius: 15px;
+
+    @media (max-width: 576px) {
+      width: 100%;
+   }
   }
 
   &__name{
@@ -626,6 +672,10 @@ a:active {
   &__idle{
     width: 50%;
     padding: 37px 47px 69px 63px;
+
+    @media (max-width: 576px) {
+      width: 100%;
+   }
   }
   &__idle-btn{
     width: 100%;
@@ -642,6 +692,15 @@ a:active {
   &__type{
     margin-top: 16px;
   }
+
+  @media (max-width: 992px) {
+     width: 90%;
+  }
+  
+  @media (max-width: 576px) {
+     flex-direction: column;
+  }
+  
 }
 
 .c-dropdown{
@@ -680,6 +739,7 @@ a:active {
 }
 
 .c-card-history{
+  padding: 16px 16px 16px 46px;
   width: 80%;
   background-color: $color-text-light;
   margin-top: 38px;
@@ -690,6 +750,10 @@ a:active {
     display: flex;
     justify-content: space-around;
   }
+
+  @media (max-width: 992px) {
+    width: 90%;
+ }
 }
 
 .c-table{
@@ -697,8 +761,92 @@ a:active {
   border-collapse: collapse;
   border-radius: 15px;
   width: 100%;
-  text-align: center
+  text-align: left;
+
+  &__head{
+    font-weight: 700;
+    padding-bottom: 16px;
+  }
+
+  &__values{
+    padding: 16px 0;
+  }
 }
+
+
+@media (min-width: 993px) {
+  .c-overlay,
+  .c-overlay + span{
+    display: none;
+  }
+}
+
+
+  .c-overlay {
+    /* Height & width depends on how you want to reveal the overlay (see JS below) */   
+    display: block;
+    height: 100%;
+    width: 0;
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    background-color: #122C34; /* Black fallback color */
+    background-color: rgba(18,44,52, 0.9); /* Black w/opacity */
+    overflow-x: hidden; /* Disable horizontal scroll */
+    transition: 0.5s; /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
+  }
+  
+  /* Position the content inside the overlay */
+  .c-overlay__content {
+    position: relative;
+    top: 25%; /* 25% from the top */
+    width: 100%; /* 100% width */
+    text-align: center; /* Centered text/links */
+    margin-top: 30px; /* 30px top margin to avoid conflict with the close button on smaller screens */
+  }
+  
+  /* The navigation links inside the overlay */
+  .c-overlay a {
+    padding: 8px;
+    text-decoration: none;
+    font-size: 36px;
+    color: $color-border;
+    display: block; /* Display block instead of inline */
+    transition: 0.3s; /* Transition effects on hover (color) */
+  }
+  
+  /* When you mouse over the navigation links, change their color */
+  .c-overlay a:hover, .c-overlay a:focus {
+    color: #f1f1f1;
+  }
+  
+  /* Position the close button (top right corner) */
+  .c-overlay .c-closebtn {
+    position: absolute;
+    top: 20px;
+    right: 45px;
+    font-size: 60px;
+  }
+
+  .c-overlay__icon{
+    fill: white;
+    height: 32px;
+  }
+  
+  /* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
+  @media screen and (max-height: 450px) {
+    .c-overlay a {font-size: 20px}
+    .c-overlay .c-closebtn {
+      font-size: 40px;
+      top: 15px;
+      right: 35px;
+    }
+  }
+
+
+
+
 
 /*---------------------------------------/*
  # UTILITIES
