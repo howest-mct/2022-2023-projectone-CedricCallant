@@ -45,6 +45,7 @@ html {
   color: white;
   scroll-behavior: smooth;
   background-color: #F5F5F5;
+  height: 100%;
 }
 
 /*
@@ -378,6 +379,37 @@ a:active {
 /*------------------------------------*\
   #COMPONENTS
 \*------------------------------------*/
+.c-login {
+  background-color: #122C34;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.c-login__title {
+  text-align: center;
+}
+.c-login__username {
+  color: white;
+}
+.c-login input {
+  width: 100%;
+  border-radius: 100px;
+  padding: 8px 20px;
+  border: 2px solid white;
+}
+.c-login__btn {
+  margin-top: 16px;
+  padding: 4px 0;
+  background-color: #AFDBF5;
+  width: 100%;
+  border-radius: 10px;
+  border: none;
+}
+.c-login__btn:hover {
+  background-color: #A6CDE5;
+}
+
 /*
   Components: Header
   ---
