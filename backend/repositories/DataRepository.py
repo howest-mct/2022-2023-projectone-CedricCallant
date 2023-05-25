@@ -12,6 +12,7 @@ class DataRepository:
 
     @staticmethod
     def read_cube_with_name(username):
-        sql = 'SELECT * FROM Cube WHERE username = %s'
+        sql = 'SELECT * FROM Cube WHERE BINARY Username = %s'
         params = [username]
-        Database.get_one_row(sql, params)
+        return Database.get_one_row(sql,params)
+

@@ -15,8 +15,6 @@ socketio = SocketIO(app, cors_allowed_origins="*",
                     async_mode='gevent', ping_interval=0.5)
 CORS(app)
 
-endpoint = '/api/v1'
-
 # START een thread op. Belangrijk!!! Debugging moet UIT staan op start van de server, anders start de thread dubbel op
 # werk enkel met de packages gevent en gevent-websocket.
 def all_out():
@@ -42,20 +40,19 @@ def start_thread():
 def hallo():
     return "Server is running, er zijn momenteel geen API endpoints beschikbaar."
 
-@app.route(endpoint + '/login/', methods = ['POST'])
+@app.route('/login/', methods = ['POST'])
 def login():
     if request.method == 'POST':
         input = DataRepository.json_or_formdata(request)
-        if input is not None:
-            data = DataRepository.read_cube_with_name(input['username'])
-            print(data)
-            if data is not None:
-                print('niet ok')
-                return jsonify(data), 200
-            else:
-                print('ok')
-                return jsonify(error='Username niet gevonden'), 404
-
+        print(input['username'])
+        data = DataRepository.read_cube_with_name(input['username'])
+        print(data)
+        if data is not None:
+            print('niet ok')
+            return jsonify(data), 200
+        else:
+            print('ok')
+            return jsonify(error='Username niet gevonden'), 404
 
 
 # SOCKET IO
