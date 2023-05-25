@@ -11,6 +11,15 @@ function closeNav() {
 }
 
 const listenToUI = function () {
+  document.querySelector('.js-login-btn').addEventListener('click', function(){
+    loginveld = document.querySelector('.js-loginveld')
+    if(loginveld.value == null | loginveld.value == ""){
+      console.info(loginveld.style.border);
+      loginveld.style.border = "2px solid #FF0000";
+    } else{
+      loginveld.style.border = "2px solid #FFFFFF";
+    }
+  })
 };
 
 const listenToSocket = function () {
