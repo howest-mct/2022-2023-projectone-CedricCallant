@@ -398,6 +398,9 @@ a:active {
   padding: 8px 20px;
   border: 2px solid white;
 }
+.c-login__foutmelding {
+  color: red;
+}
 .c-login__btn {
   margin-top: 16px;
   padding: 4px 0;

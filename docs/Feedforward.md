@@ -34,15 +34,21 @@
 
 ## Gesprek 1 (Datum: xx/xx/2023)
 
-Lector:
+Lector: Geert
 
 Vragen voor dit gesprek:
 
-- vraag 1: V
+- vraag 1: Gebruik libraries bij RFID en Ledstrip
 
 Dit is de feedback op mijn vragen.
 
-- feedback 1: G
+- feedback 1: Ik moet hiervoor een mail sturen naar Geert
+
+- vraag 2: Hoe goed is mijn fritzing?
+
+Dit is de feedback op mijn vragen.
+
+- feedback 2: Weerstand en diode bij de motor zetten, de breadboard power supply mag niet doorverbonden zijn naar de 3.3V van de pi
 
 ## Gesprek 2 (Datum: xx/xx/2023)
 
