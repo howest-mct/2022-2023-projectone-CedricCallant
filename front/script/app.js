@@ -22,10 +22,8 @@ const showloginError = function (err) {
   document.querySelector('.js-loginfout').innerHTML = 'This name is not linked to a cube'
 }
 
-const listenToUI = function () {
-  if (document.querySelector('.js-login')) {
-    document.querySelector('.js-login-btn').addEventListener('click', function () {
-      const loginveld = document.querySelector('.js-loginveld')
+const getUsername = function(){
+  const loginveld = document.querySelector('.js-loginveld')
       if (loginveld.value == null | loginveld.value == "") {
         console.info(loginveld.style.border);
         loginveld.style.border = "2px solid #FF0000";
@@ -33,9 +31,14 @@ const listenToUI = function () {
       } else {
         loginveld.style.border = "2px solid #FFFFFF";
         const username = JSON.stringify({ username: loginveld.value });
-        handleData(`http://192.168.168.169:5000/login/`, showRFID, showloginError, 'POST', username);
+        handleData(`http://${window.location.hostname}:5000/login/`, showRFID, showloginError, 'POST', username);
       }
-    })
+}
+
+const listenToUI = function () {
+  if (document.querySelector('.js-login')) {
+    document.querySelector('.js-login-btn').addEventListener('click', getUsername)
+    document.querySelector('.js-login-btn').addEventListener('touchstart', getUsername)
   } else if (document.querySelector('.js-home')) { }
 };
 
