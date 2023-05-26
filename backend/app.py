@@ -4,8 +4,10 @@ from repositories.DataRepository import DataRepository
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
+from helpers.simpleRfid import SimpleMFRC522
 
 # TODO: GPIO
+reader = SimpleMFRC522()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'HELLOTHISISSCERET'
@@ -44,14 +46,10 @@ def hallo():
 def login():
     if request.method == 'POST':
         input = DataRepository.json_or_formdata(request)
-        print(input['username'])
         data = DataRepository.read_cube_with_name(input['username'])
-        print(data)
         if data is not None:
-            print('niet ok')
             return jsonify(data), 200
         else:
-            print('ok')
             return jsonify(error='Username niet gevonden'), 404
 
 
@@ -59,6 +57,15 @@ def login():
 @socketio.on('connect')
 def initial_connection():
     print('A new client connect')
+
+@socketio.on('F2B_read_tag')
+def read_tag(jsonObject):
+    print('Reading the tag...')
+    id,text = reader.read()
+    if int(id) == int(jsonObject['id']):
+        emit('B2F_login_succes', {'cubeid': id})
+    else:
+        emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
 
 
 if __name__ == '__main__':
