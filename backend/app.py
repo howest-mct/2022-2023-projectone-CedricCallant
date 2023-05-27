@@ -18,11 +18,40 @@ headers = {
 help = json.loads(requests.get(url, headers=headers).content.decode('utf-8')) # Here you have the data that you need
 color_json = json.dumps(help, indent=2)
 
+cubeid = 180129144013
+
 # TODO: GPIO
 reader = SimpleMFRC522() #RFID reader object
 
 
 leds = Ledstrip() #Ledstrip class
+led_mode= 'static'
+led_prev_mode = 'static'
+led_color = (111, 0, 255)
+
+def set_led_mode():
+    global led_mode
+    global led_prev_mode
+    if led_mode == 'static':
+        leds.set_Brightness(1)
+        leds.static(led_color)
+        if led_mode != led_prev_mode:
+            led_prev_mode = led_mode
+            return DataRepository.add_to_history(12,6)
+    elif led_mode == 'pulse':
+        leds.pulse(led_color)
+        if led_mode != led_prev_mode:
+            led_prev_mode = led_mode
+            return DataRepository.add_to_history(12,5)
+    elif led_mode == 'wave':
+        leds.set_Brightness(1)
+        leds.wave(led_color)
+        if led_mode != led_prev_mode:
+            led_prev_mode = led_mode
+            return DataRepository.add_to_history(12,7)
+    elif led_mode == 'sound':
+        pass
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'HELLOTHISISSCERET'
@@ -38,9 +67,7 @@ def all_out():
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
     while True:
-        leds.pulse((111, 0, 255))
-        # save our last run time
-        # last_time_alles_uit = now
+        set_led_mode()
 
 
 def start_thread():
@@ -80,6 +107,11 @@ def read_tag(jsonObject):
     else:
         emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
 
+@socketio.on('F2B_change_idle_mode')
+def change_mode(jsonObject):
+    global led_mode
+    led_mode = jsonObject['new_mode']
+
 
 if __name__ == '__main__':
     try:
@@ -89,4 +121,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('KeyboardInterrupt exception is caught')
     finally:
+        leds.clear_leds()
         print("finished")

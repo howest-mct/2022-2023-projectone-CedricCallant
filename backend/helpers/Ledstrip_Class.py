@@ -38,7 +38,7 @@ class Ledstrip:
         for i in range(0,self.LEDRANGE,1):
             self.pixel[i] = color
             time.sleep(0.01)
-        for i in range(self.LEDRANGE,0,-1):
+        for i in range(self.LEDRANGE-1,0,-1):
             self.pixel[i] = (0,0,0)
             time.sleep(0.01)
 
@@ -53,7 +53,7 @@ class Ledstrip:
             return 'Brightness needs to be a value between 0 and 1'
 
     def clear_leds(self):
-        self.pixel.fill(0,0,0)
+        self.pixel.fill((0,0,0))
 
     def white_light(self, preference):
         if preference == 'warm':

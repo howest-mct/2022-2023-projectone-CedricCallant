@@ -36,7 +36,11 @@ const listenToUI = function () {
         handleData(`http://192.168.168.169:5000/login/`, showRFID, showloginError, 'POST', username);
       }
     })
-  } else if (document.querySelector('.js-home')) { }
+  } else if (document.querySelector('.js-home')) {
+    document.querySelector('.js-modes').addEventListener('change', function(){
+      socketio.emit('F2B_change_idle_mode', {new_mode: this.value})
+    })
+  }
 };
 
 const listenToSocket = function () {
@@ -66,7 +70,7 @@ const init = function () {
     const urlparams = new URLSearchParams(window.location.search);
     if(urlparams == 0){
       window.location.href = 'inlog.html'
-    }
+    } 
   }
 };
 
