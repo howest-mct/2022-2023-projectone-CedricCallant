@@ -5,9 +5,24 @@ from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from helpers.simpleRfid import SimpleMFRC522
+from helpers.Ledstrip_Class import Ledstrip
+import json
+import urllib
+import requests
+
+url = 'https://parseapi.back4app.com/classes/Color?limit=1000&order=name&keys=name,hexCode,redDecimal,greenDecimal,blueDecimal'
+headers = {
+    'X-Parse-Application-Id': 'vei5uu7QWv5PsN3vS33pfc7MPeOPeZkrOcP24yNX', # This is the fake app's application id
+    'X-Parse-Master-Key': 'aImLE6lX86EFpea2nDjq9123qJnG0hxke416U7Je' # This is the fake app's readonly master key
+}
+help = json.loads(requests.get(url, headers=headers).content.decode('utf-8')) # Here you have the data that you need
+color_json = json.dumps(help, indent=2)
 
 # TODO: GPIO
-reader = SimpleMFRC522()
+reader = SimpleMFRC522() #RFID reader object
+
+
+leds = Ledstrip() #Ledstrip class
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'HELLOTHISISSCERET'
@@ -23,11 +38,9 @@ def all_out():
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
     while True:
-        print('*** We zetten alles uit **')
-
+        leds.pulse((111, 0, 255))
         # save our last run time
         # last_time_alles_uit = now
-        time.sleep(30)
 
 
 def start_thread():
