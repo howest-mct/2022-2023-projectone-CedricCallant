@@ -91,6 +91,10 @@ def login():
             return jsonify(data), 200
         else:
             return jsonify(error='Username niet gevonden'), 404
+        
+@app.route('/color/')
+def get_colors():
+    return color_json, 200
 
 
 # SOCKET IO

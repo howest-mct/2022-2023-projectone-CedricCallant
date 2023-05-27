@@ -1,6 +1,8 @@
 const lanIP = `${window.location.hostname}:5000`;
 const socketio = io(lanIP);
 
+let colors;
+
 function openNav() {
   document.getElementById("myNav").style.width = "100%";
 }
@@ -22,6 +24,68 @@ const showloginError = function (err) {
   document.querySelector('.js-loginfout').innerHTML = 'This name is not linked to a cube'
 }
 
+const datalistevent = function (e) {
+  console.info(e)
+  let input = e.target,
+    val = input.value;
+  list = input.getAttribute('list')
+  options = document.getElementById(list).childNodes;
+
+  for (var i = 0; i < options.length; i++) {
+    console.info(options[i].innerText, val)
+    if (String(options[i].innerText) == String(val)) {
+      console.info('ok')
+      // An item was selected from the list!
+      showChosenColor(options[i])
+      break;
+    }
+  }
+}
+
+const showChosenColor = function (idk) {
+  console.info(idk)
+  for (let c of colors) {
+    if (c.objectId == idk.getAttribute('data-obid')) {
+      document.querySelector('.js-dropdownHex').value = c.hexCode
+      document.querySelector('.js-dropdownNames').value = c.name
+      document.querySelector('.c-card-color__selector').style.backgroundColor = c.hexCode
+      document.querySelector('.c-dropdown').style.backgroundColor = c.hexCode
+      document.querySelector('.c-dropdown__small').style.backgroundColor = c.hexCode
+      break;
+    }
+  }
+  showColors2()
+}
+
+const showColors = function (jsonObject) {
+  colors = jsonObject['results']
+  let hexString = ''
+  let nameString = ''
+  for (let c of colors) {
+    hexString += `<option data-obid="${c.objectId}" value="${c.hexCode}">${c.hexCode}</option>`
+    nameString += `<option data-obid="${c.objectId}" value="${c.name} ">${c.name}</option>`
+  }
+  document.querySelector('.js-ColorHex').innerHTML = hexString
+  document.querySelector('.js-ColorNames').innerHTML = nameString
+  listenToUI()
+}
+
+const showColors2 = function () {
+  let hexString = ''
+  let nameString = ''
+  for (let c of colors) {
+    hexString += `<option data-obid="${c.objectId}" value="${c.hexCode}">${c.hexCode}</option>`
+    nameString += `<option data-obid="${c.objectId}" value="${c.name} ">${c.name}</option>`
+  }
+  document.querySelector('.js-ColorHex').innerHTML = hexString
+  document.querySelector('.js-ColorNames').innerHTML = nameString
+  listenToUI()
+}
+
+const showError = function (err) {
+  console.error(err)
+}
+
 const listenToUI = function () {
   if (document.querySelector('.js-login')) {
     document.querySelector('.js-login-btn').addEventListener('click', function () {
@@ -33,13 +97,15 @@ const listenToUI = function () {
       } else {
         loginveld.style.border = "2px solid #FFFFFF";
         const username = JSON.stringify({ username: loginveld.value });
-        handleData(`http://192.168.168.169:5000/login/`, showRFID, showloginError, 'POST', username);
+        handleData(`http://${window.location.hostname}:5000/login/`, showRFID, showloginError, 'POST', username);
       }
     })
   } else if (document.querySelector('.js-home')) {
-    document.querySelector('.js-modes').addEventListener('change', function(){
-      socketio.emit('F2B_change_idle_mode', {new_mode: this.value})
+    document.querySelector('.js-modes').addEventListener('change', function () {
+      socketio.emit('F2B_change_idle_mode', { new_mode: this.value })
     })
+    document.querySelector('.js-dropdownHex').addEventListener('input', datalistevent)
+    document.querySelector('.js-dropdownNames').addEventListener('input', datalistevent)
   }
 };
 
@@ -66,11 +132,13 @@ const init = function () {
   console.info('DOM geladen');
   listenToUI();
   listenToSocket();
-  if(document.querySelector('.js-home')){
+  if (document.querySelector('.js-home')) {
     const urlparams = new URLSearchParams(window.location.search);
-    if(urlparams == 0){
+    if (urlparams == 0) {
       window.location.href = 'inlog.html'
-    } 
+    } else {
+      handleData(`http://${window.location.hostname}:5000/color/`, showColors, showError)
+    }
   }
 };
 
