@@ -5,9 +5,64 @@ from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from helpers.simpleRfid import SimpleMFRC522
+from helpers.Ledstrip_Class import Ledstrip
+import json
+import urllib
+import requests
+
+url = 'https://parseapi.back4app.com/classes/Color?limit=1000&order=name&keys=name,hexCode,redDecimal,greenDecimal,blueDecimal'
+headers = {
+    'X-Parse-Application-Id': 'vei5uu7QWv5PsN3vS33pfc7MPeOPeZkrOcP24yNX', # This is the fake app's application id
+    'X-Parse-Master-Key': 'aImLE6lX86EFpea2nDjq9123qJnG0hxke416U7Je' # This is the fake app's readonly master key
+}
+help = json.loads(requests.get(url, headers=headers).content.decode('utf-8')) # Here you have the data that you need
+color_json = json.dumps(help, indent=2)
+
+def get_idle_mode(help):
+    if help['ActieId'] == 1:
+        return True
+    elif help['ActieId'] == 8:
+        return False
+
+cubeid = 180129144013
+idle_mode = get_idle_mode(DataRepository.get_last_idle_state(1,8,12))
 
 # TODO: GPIO
-reader = SimpleMFRC522()
+reader = SimpleMFRC522() #RFID reader object
+
+def hex_to_dec(value):
+    h = value[1:7]
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+
+leds = Ledstrip() #Ledstrip class
+led_mode= 'static'
+led_prev_mode = 'static'
+led_color = hex_to_dec(DataRepository.get_last_used_color(4,12)['Value'])
+
+def set_led_mode():
+    global led_mode
+    global led_prev_mode
+    if led_mode == 'static':
+        leds.set_Brightness(1)
+        leds.static(led_color)
+        if led_mode != led_prev_mode:
+            led_prev_mode = led_mode
+            return DataRepository.add_to_history(12,6)
+    elif led_mode == 'pulse':
+        leds.pulse(led_color)
+        if led_mode != led_prev_mode:
+            led_prev_mode = led_mode
+            return DataRepository.add_to_history(12,5)
+    elif led_mode == 'wave':
+        leds.set_Brightness(1)
+        leds.wave(led_color)
+        if led_mode != led_prev_mode:
+            led_prev_mode = led_mode
+            return DataRepository.add_to_history(12,7)
+    elif led_mode == 'sound':
+        pass
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'HELLOTHISISSCERET'
@@ -23,11 +78,10 @@ def all_out():
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
     while True:
-        print('*** We zetten alles uit **')
-
-        # save our last run time
-        # last_time_alles_uit = now
-        time.sleep(30)
+        if idle_mode:
+            set_led_mode()
+        else:
+            leds.clear_leds()
 
 
 def start_thread():
@@ -51,12 +105,18 @@ def login():
             return jsonify(data), 200
         else:
             return jsonify(error='Username niet gevonden'), 404
+        
+@app.route('/color/')
+def get_colors():
+    return color_json, 200
 
 
 # SOCKET IO
 @socketio.on('connect')
 def initial_connection():
     print('A new client connect')
+    emit('B2F_curr_color', {'hex': DataRepository.get_last_used_color(4,12)['Value']})
+    emit('B2F_toggled', {'mode': idle_mode})
 
 @socketio.on('F2B_read_tag')
 def read_tag(jsonObject):
@@ -67,6 +127,31 @@ def read_tag(jsonObject):
     else:
         emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
 
+@socketio.on('F2B_change_idle_mode')
+def change_mode(jsonObject):
+    global led_mode
+    led_mode = jsonObject['new_mode']
+
+@socketio.on('F2B_change_color')
+def change_color(jsonObject):
+    global led_color
+    led_color = hex_to_dec(jsonObject['hexCode'])
+    DataRepository.add_to_history(12,4,jsonObject['hexCode'])
+    print(f'Color {jsonObject["hexCode"]} added to database')
+
+@socketio.on('F2B_toggle_idle')
+def toggle_idle(jsonObject):
+    global idle_mode
+    if jsonObject['state'] == 'Turn OFF':
+        idle_mode = False
+        DataRepository.add_to_history(12,8)
+        print('Leds turned off')
+    elif jsonObject['state'] == 'Turn ON':
+        idle_mode = True
+        DataRepository.add_to_history(12,1) 
+        print('Leds turned OFF')
+    emit('B2F_toggled', {'mode': idle_mode})
+
 
 if __name__ == '__main__':
     try:
@@ -76,4 +161,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('KeyboardInterrupt exception is caught')
     finally:
+        leds.clear_leds()
         print("finished")

@@ -106,7 +106,7 @@ class MFRC522:
 
     serNum = []
 
-    def __init__(self, bus=0, device=1, spd=1000000, pin_mode=10, pin_rst=22, debugLevel='WARNING'):
+    def __init__(self, bus=0, device=1, spd=1000000, pin_mode=10, pin_rst=-1, debugLevel='WARNING'):
         """
         Initializes the MFRC522 RFID reader.
 
@@ -133,7 +133,7 @@ class MFRC522:
         gpioMode = GPIO.getmode()
 
         if gpioMode is None:
-            GPIO.setmode(GPIO.BCM)
+            GPIO.setmode(pin_mode)
         else:
             pin_mode = gpioMode
 

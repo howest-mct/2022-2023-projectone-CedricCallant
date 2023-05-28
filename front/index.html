@@ -64,7 +64,7 @@
   </header>
   <main class="c-main">
     <h2>Home</h2>
-    <article class="c-card-power o-layout o-layout--align-center">
+    <div class="c-card-power o-layout o-layout--align-center">
       <button class="c-card-power__btn u-button-reset"><svg class="c-card-power__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
           <path d="M 15 4 L 15 16 L 17 16 L 17 4 Z M 12 4.6875 C 7.347656 6.339844 4 10.785156 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 10.785156 24.652344 6.339844 20 4.6875 L 20 6.84375 C 23.527344 8.390625 26 11.910156 26 16 C 26 21.515625 21.515625 26 16 26 C 10.484375 26 6 21.515625 6 16 C 6 11.910156 8.472656 8.390625 12 6.84375 Z" />
         </svg></button>
@@ -72,34 +72,34 @@
         <p class="u-mb-clear">Power this cube off</p>
         <p class="c-card-power__status u-mb-clear">Cube status: &nbsp; <strong>ON</strong></p>
       </div>
-    </article>
-    <article class="c-card-color o-layout">
+    </div>
+    <div class="c-card-color o-layout">
       <div class="c-card-color__selector">
-        <input class="js-dropdown c-dropdown" type="text" list="colors" placeholder="#8AB9F1" />
-        <datalist class="js-showColorDD" id="colors">
+        <input class="js-dropdown js-dropdownHex c-dropdown" type="text" list="colors" placeholder="#8AB9F1" >
+        <datalist class="js-ColorHex" id="colors">
           <option value="#8AB9F1">#8AB9F1</option>
         </datalist>
         <p class="u-mb-clear">Cube color</p>
         <p class="c-card-color__name u-mb-clear">Name:</p>
-        <input class="js-dropdown c-dropdown__small" type="text" list="colornames" placeholder="Jordy Blue" />
-        <datalist class="js-showColorNamesDD" id="colornames">
+        <input class="js-dropdown js-dropdownNames c-dropdown__small" type="text" list="colornames" placeholder="Jordy Blue" >
+        <datalist class="js-ColorNames" id="colornames">
           <option value="Jordy Blue">Jordy Blue</option>
         </datalist>
       </div>
       <div class="c-card-color__idle">
-        <p>Idle mode: &nbsp; <strong>ON</strong></p>
-        <button class="c-card-color__idle-btn">Turn OFF</button>
+        <p>Idle mode: &nbsp; <strong class="js-idlestate">ON</strong></p>
+        <button class="js-idlebtn c-card-color__idle-btn">Turn OFF</button>
         <p class="c-card-color__type">Type:</p>
-        <label for="idle_types" id="idle"></label>
-        <select class="c-dropdown-types" name="types" id="idle_types">
+        <label for="idle_modes" id="idle"></label>
+        <select class="js-modes c-dropdown-types" name="modes" id="idle_modes">
           <option value="static">static</option>
           <option value="pulse">pulse</option>
           <option value="wave">wave</option>
           <option value="sound">sound</option>
         </select>
       </div>
-    </article>
-    <article class="c-card-history">
+    </div>
+    <div class="c-card-history">
       <table class="c-table">
         <tr>
           <th class="c-table__head">Time</th>
@@ -120,7 +120,7 @@
           <td class="c-table__values">Shows if the ledstrip in the cube is on (True) or off (False)</td>
         </tr>
       </table>
-    </article>
+    </div>
   </main>
 
 </body>
