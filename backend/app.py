@@ -26,6 +26,7 @@ def get_idle_mode(help):
 
 cubeid = 180129144013
 idle_mode = get_idle_mode(DataRepository.get_last_idle_state(1,8,12))
+last_known_event = DataRepository.get_last_events(cubeid)
 
 # TODO: GPIO
 reader = SimpleMFRC522() #RFID reader object
@@ -75,13 +76,20 @@ CORS(app)
 # START een thread op. Belangrijk!!! Debugging moet UIT staan op start van de server, anders start de thread dubbel op
 # werk enkel met de packages gevent en gevent-websocket.
 def all_out():
+    global last_known_event
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
+    moment = time.time()
     while True:
         if idle_mode:
             set_led_mode()
         else:
             leds.clear_leds()
+        # if time.time() >= moment + 60:
+        #     events = DataRepository.get_last_events(cubeid)
+        #     socketio.emit('B2F_ack_change', {'changes': events})
+        #     moment = time.time()
+
 
 
 def start_thread():
@@ -110,6 +118,16 @@ def login():
 def get_colors():
     return color_json, 200
 
+@app.route('/history/small/<id>/')
+def get_small_history(id):
+    data = DataRepository.get_last_events(id)
+    if data is not None:
+        if len(data) == 2:
+            return jsonify(data), 200
+        else:
+            return jsonify(error = 'CubeId niet gevonden'), 404
+    else:
+        return jsonify(error = 'Kon data niet ophalen :('), 500
 
 # SOCKET IO
 @socketio.on('connect')
@@ -145,12 +163,13 @@ def toggle_idle(jsonObject):
     if jsonObject['state'] == 'Turn OFF':
         idle_mode = False
         DataRepository.add_to_history(12,8)
-        print('Leds turned off')
+        print('Leds turned OFF')
     elif jsonObject['state'] == 'Turn ON':
         idle_mode = True
         DataRepository.add_to_history(12,1) 
-        print('Leds turned OFF')
+        print('Leds turned ON')
     emit('B2F_toggled', {'mode': idle_mode})
+
 
 
 if __name__ == '__main__':
