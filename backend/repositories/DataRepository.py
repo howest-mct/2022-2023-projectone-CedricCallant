@@ -33,4 +33,8 @@ class DataRepository:
         params = [action_on,action_off,cubedeviceid]
         return Database.get_one_row(sql,params)
 
+    def get_last_events(cubeid):
+        sql = f'SELECT h.Time, d.Type, concat(h.value, " ", if(d.measureunit is null, "",d.measureunit)) as `Value`, a.Description FROM History h JOIN CubeDevice cd ON h.CubeDeviceId = cd.CubeDeviceId join Device d ON cd.DeviceId = d.DeviceId join Cube c ON cd.CubeId = c.CubeId join Action a on h.ActieId = a.ActionId Where c.CubeId = %s order by h.time desc limit 2'
+        params = [cubeid]
+        return Database.get_rows(sql,params)
 

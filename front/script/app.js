@@ -1,7 +1,7 @@
 const lanIP = `${window.location.hostname}:5000`;
 const socketio = io(lanIP);
 
-let colors;
+let colors, cubeid;
 
 function openNav() {
   document.getElementById("myNav").style.width = "100%";
@@ -10,6 +10,19 @@ function openNav() {
 /* Close when someone clicks on the "x" symbol inside the overlay */
 function closeNav() {
   document.getElementById("myNav").style.width = "0%";
+}
+
+const cleanupTime = function (time) {
+  spsubstr = time.substring(15, 17)
+  return time.substring(4, 25).replace(spsubstr, time.substring(15, 16) + '<br>' + time.substring(16, 17))
+}
+
+const cleanupValue = function (value) {
+  if (value == null) {
+    return ''
+  } else {
+    return value
+  }
 }
 
 const showRFID = function (jsonObject) {
@@ -68,6 +81,7 @@ const showColors = function (jsonObject) {
   document.querySelector('.js-ColorHex').innerHTML = hexString
   document.querySelector('.js-ColorNames').innerHTML = nameString
   listenToUI()
+  handleData(`http://${window.location.hostname}:5000/history/small/${cubeid}/`, showHistory, showError)
 }
 
 const showColors2 = function () {
@@ -84,6 +98,25 @@ const showColors2 = function () {
 
 const showError = function (err) {
   console.error(err)
+}
+
+const showHistory = function (jsonObject) {
+  let htmlString = `<tr>
+  <th class="c-table__head">Time</th>
+  <th class="c-table__head">Type</th>
+  <th class="c-table__head">Value</th>
+  <th class="c-table__head">Description</th>
+</tr>`
+  for (let t of jsonObject) {
+    htmlString += `
+  <tr>
+    <td class="c-table__values">${cleanupTime(t.Time)}</td>
+    <td class="c-table__values">${t.Type}</td>
+    <td class="c-table__values">${cleanupValue(t.Value)}</td>
+    <td class="c-table__values">${t.Description}</td>
+  </tr>`
+  }
+  document.querySelector('.js-table').innerHTML = htmlString
 }
 
 const toggleIdle = function () {
@@ -156,6 +189,24 @@ const listenToSocket = function () {
         document.querySelector('.js-idlebtn').innerHTML = 'Turn ON'
       }
     })
+    socketio.on('B2F_ack_change', function(jsonObject){
+      let htmlString = `<tr>
+  <th class="c-table__head">Time</th>
+  <th class="c-table__head">Type</th>
+  <th class="c-table__head">Value</th>
+  <th class="c-table__head">Description</th>
+</tr>`
+  for (let t of jsonObject) {
+    htmlString += `
+  <tr>
+    <td class="c-table__values">${cleanupTime(t.Time)}</td>
+    <td class="c-table__values">${t.Type}</td>
+    <td class="c-table__values">${cleanupValue(t.Value)}</td>
+    <td class="c-table__values">${t.Function}</td>
+  </tr>`
+  }
+  document.querySelector('.js-table').innerHTML = htmlString
+    })
   }
 };
 
@@ -168,6 +219,7 @@ const init = function () {
     if (urlparams == 0) {
       window.location.href = 'inlog.html'
     } else {
+      cubeid = urlparams.get('userid')
       handleData(`http://${window.location.hostname}:5000/color/`, showColors, showError)
     }
   }
