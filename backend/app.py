@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from helpers.simpleRfid import SimpleMFRC522
 from helpers.Ledstrip_Class import Ledstrip
+from helpers.MPU_class import Mpu6050
 import json
 import urllib
 import requests
@@ -30,6 +31,7 @@ last_known_event = DataRepository.get_last_events(cubeid)
 
 # TODO: GPIO
 reader = SimpleMFRC522() #RFID reader object
+accelero = Mpu6050(0x68)
 
 def hex_to_dec(value):
     h = value[1:7]
@@ -40,6 +42,8 @@ leds = Ledstrip() #Ledstrip class
 led_mode= 'static'
 led_prev_mode = 'static'
 led_color = hex_to_dec(DataRepository.get_last_used_color(4,12)['Value'])
+lamp = False
+
 
 def set_led_mode():
     global led_mode
@@ -76,25 +80,34 @@ CORS(app)
 # START een thread op. Belangrijk!!! Debugging moet UIT staan op start van de server, anders start de thread dubbel op
 # werk enkel met de packages gevent en gevent-websocket.
 def all_out():
-    global last_known_event
+    timer = time.time()
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
-    moment = time.time()
+    # moment = time.time()
     while True:
-        if idle_mode:
-            set_led_mode()
-        else:
-            leds.clear_leds()
+        acc_state = accelero.read_data()['acc']
+        if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
+            if time.time() >= timer + 3:
+                print('value reached')
+                timer = time.time()
         # if time.time() >= moment + 60:
         #     events = DataRepository.get_last_events(cubeid)
         #     socketio.emit('B2F_ack_change', {'changes': events})
         #     moment = time.time()
 
-
+def led_thread():
+    time.sleep(11)
+    while True:
+        if idle_mode:
+            set_led_mode()
+        else:
+            leds.clear_leds()
 
 def start_thread():
     # threading.Timer(10, all_out).start()
     t = threading.Thread(target=all_out, daemon=True)
+    l = threading.Thread(target=led_thread, daemon=True)
+    l.start()
     t.start()
     print("thread started")
 
