@@ -32,7 +32,7 @@
 
 # Feedforward gesprekken
 
-## Gesprek 1 (Datum: xx/xx/2023)
+## Gesprek 1 (Datum: 22/05/2023)
 
 Lector: Geert
 
@@ -50,26 +50,30 @@ Dit is de feedback op mijn vragen.
 
 - feedback 2: Weerstand en diode bij de motor zetten, de breadboard power supply mag niet doorverbonden zijn naar de 3.3V van de pi
 
-## Gesprek 2 (Datum: xx/xx/2023)
+## Gesprek 2 (Datum: 24/05/2023)
 
-Lector:
+Lector: Geert,Dieter en Stijn
 
-Vragen voor dit gesprek:
+Vragen voor dit gesprek: Tourmoment
 
 -  vraag 1: V
 
+/
+
+- feedback 1: 
+Databank: naamgeving in orde brengen, cubedevice linken met history
+
+## Gesprek 3 (Datum: 30/05/2023)
+
+Lector: Christophe en Hans
+
+Vragen voor dit gesprek: Toermoment
+
+/
+
 Dit is de feedback op mijn vragen.
 
-- feedback 1: G
-
-## Gesprek 3 (Datum: xx/xx/2023)
-
-Lector:
-
-Vragen voor dit gesprek:
-
-- [x] vraag 1: V
-
-Dit is de feedback op mijn vragen.
-
-- feedback 1: G
+- feedback 1: Werken aan het pitchen van het project.
+- feedback 2: power this cube off -> power off this cube.
+- feedback 3: types en kleur een soort gevoel meegeven.
+- feedback 4: communicatie over wifi mogelijk, aangezien bluetooth short ranged is.
