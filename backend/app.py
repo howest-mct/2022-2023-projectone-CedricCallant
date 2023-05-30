@@ -80,6 +80,7 @@ CORS(app)
 # START een thread op. Belangrijk!!! Debugging moet UIT staan op start van de server, anders start de thread dubbel op
 # werk enkel met de packages gevent en gevent-websocket.
 def all_out():
+    global lamp
     timer = time.time()
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
@@ -88,7 +89,13 @@ def all_out():
         acc_state = accelero.read_data()['acc']
         if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
             if time.time() >= timer + 3:
-                print('value reached')
+                DataRepository.add_to_history(11,11, acc_state['x'])
+                lamp = not lamp
+                print('lamp status veranderd')
+                if lamp:
+                    DataRepository.add_to_history(12,9)
+                else:
+                    DataRepository.add_to_history(12,10)
                 timer = time.time()
         # if time.time() >= moment + 60:
         #     events = DataRepository.get_last_events(cubeid)
@@ -98,10 +105,13 @@ def all_out():
 def led_thread():
     time.sleep(11)
     while True:
-        if idle_mode:
-            set_led_mode()
+        if not lamp:
+            if idle_mode:
+                set_led_mode()
+            else:
+                leds.clear_leds()
         else:
-            leds.clear_leds()
+            leds.white_light('warm')
 
 def start_thread():
     # threading.Timer(10, all_out).start()
