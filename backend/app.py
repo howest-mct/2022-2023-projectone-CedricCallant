@@ -28,7 +28,7 @@ def hex_to_dec(value):
 
 ser = serial.Serial('/dev/serial0')
 print(ser.name)
-tekst = f'leds {hex_to_dec("#FF00E4")}'
+tekst = f'leds {hex_to_dec("#00FF00")}'
 to_send = tekst.encode(encoding='utf-8')
 ser.write(to_send)
 sendAck = False
@@ -142,7 +142,14 @@ def esp_thread():
         if sendAck:
             ser.write('Connect')
             sendAck = False
-        elif 
+        info = ser.read()
+        if info == '.':
+            pass
+        elif info[0:5] == 'lamp':
+            if info[6] == '1':
+                DataRepository.add_to_history(16,9)
+            elif info[6] == '0':
+                DataRepository.add_to_history(16,10)
 
 
 def start_thread():
