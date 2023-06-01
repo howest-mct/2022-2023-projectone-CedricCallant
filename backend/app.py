@@ -4,9 +4,12 @@ from repositories.DataRepository import DataRepository
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
-from helpers.simpleRfid import SimpleMFRC522
+from RPi import GPIO
+from helpers.simpleRfid import SimpleMFRC522Custom
 from helpers.Ledstrip_Class import Ledstrip
 from helpers.MPU_class import Mpu6050
+from helpers.MCP_class import Mcp
+import serial
 import json
 import urllib
 import requests
@@ -19,23 +22,36 @@ headers = {
 help = json.loads(requests.get(url, headers=headers).content.decode('utf-8')) # Here you have the data that you need
 color_json = json.dumps(help, indent=2)
 
+def hex_to_dec(value):
+    h = value[1:7]
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
+ser = serial.Serial('/dev/serial0')
+print(ser.name)
+tekst = f'leds {hex_to_dec("#FF00E4")}'
+to_send = tekst.encode(encoding='utf-8')
+ser.write(to_send)
+sendAck = False
+
+# print(color_json)
+
 def get_idle_mode(help):
     if help['ActieId'] == 1:
         return True
     elif help['ActieId'] == 8:
         return False
 
-cubeid = 180129144013
+cubeid = '29F0889C'
+sound_detection = 21
 idle_mode = get_idle_mode(DataRepository.get_last_idle_state(1,8,12))
 last_known_event = DataRepository.get_last_events(cubeid)
 
 # TODO: GPIO
-reader = SimpleMFRC522() #RFID reader object
+reader = SimpleMFRC522Custom() #RFID reader object
 accelero = Mpu6050(0x68)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(sound_detection, GPIO.IN)
 
-def hex_to_dec(value):
-    h = value[1:7]
-    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
 
 leds = Ledstrip() #Ledstrip class
@@ -97,6 +113,13 @@ def all_out():
                 else:
                     DataRepository.add_to_history(12,10)
                 timer = time.time()
+        if GPIO.input(sound_detection):
+            lamp = not lamp
+            if lamp:
+                    DataRepository.add_to_history(12,9)
+            else:
+                DataRepository.add_to_history(12,10)
+            print('lamp status veranderd')
         # if time.time() >= moment + 60:
         #     events = DataRepository.get_last_events(cubeid)
         #     socketio.emit('B2F_ack_change', {'changes': events})
@@ -113,12 +136,23 @@ def led_thread():
         else:
             leds.white_light('warm')
 
+def esp_thread():
+    time.sleep(9)
+    while True:
+        if sendAck:
+            ser.write('Connect')
+            sendAck = False
+        elif 
+
+
 def start_thread():
     # threading.Timer(10, all_out).start()
     t = threading.Thread(target=all_out, daemon=True)
     l = threading.Thread(target=led_thread, daemon=True)
+    e = threading.Thread(target=esp_thread, daemon=True)
     l.start()
     t.start()
+    e.start()
     print("thread started")
 
 
@@ -162,8 +196,8 @@ def initial_connection():
 @socketio.on('F2B_read_tag')
 def read_tag(jsonObject):
     print('Reading the tag...')
-    id,text = reader.read()
-    if int(id) == int(jsonObject['id']):
+    id = reader.read_id()
+    if id == jsonObject['id']:
         emit('B2F_login_succes', {'cubeid': id})
     else:
         emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})

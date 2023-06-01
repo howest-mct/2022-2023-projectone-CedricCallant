@@ -29,7 +29,9 @@
 
       <!-- Use any element to open/show the overlay navigation menu -->
     </div>
-    <span onclick="openNav()"><svg class="c-overlay__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 4 7 L 4 9 L 28 9 L 28 7 Z M 4 15 L 4 17 L 28 17 L 28 15 Z M 4 23 L 4 25 L 28 25 L 28 23 Z"/></svg></span>
+    <span onclick="openNav()"><svg class="c-overlay__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <path d="M 4 7 L 4 9 L 28 9 L 28 7 Z M 4 15 L 4 17 L 28 17 L 28 15 Z M 4 23 L 4 25 L 28 25 L 28 23 Z" />
+      </svg></span>
     <div class="c-logo">
       <h1 class="c-logo__name">CommCubes</h1>
 
@@ -69,21 +71,21 @@
           <path d="M 15 4 L 15 16 L 17 16 L 17 4 Z M 12 4.6875 C 7.347656 6.339844 4 10.785156 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 10.785156 24.652344 6.339844 20 4.6875 L 20 6.84375 C 23.527344 8.390625 26 11.910156 26 16 C 26 21.515625 21.515625 26 16 26 C 10.484375 26 6 21.515625 6 16 C 6 11.910156 8.472656 8.390625 12 6.84375 Z" />
         </svg></button>
       <div class="c-card-power__info">
-        <p class="u-mb-clear">Power this cube off</p>
+        <p class="u-mb-clear">Power off this cube</p>
         <p class="c-card-power__status u-mb-clear">Cube status: &nbsp; <strong>ON</strong></p>
       </div>
     </div>
     <div class="c-card-color o-layout">
       <div class="c-card-color__selector">
-        <input class="js-dropdown js-dropdownHex c-dropdown" type="text" list="colors" placeholder="#8AB9F1" >
-        <datalist class="js-ColorHex" id="colors">
-          <option value="#8AB9F1">#8AB9F1</option>
-        </datalist>
-        <p class="u-mb-clear">Cube color</p>
-        <p class="c-card-color__name u-mb-clear">Name:</p>
-        <input class="js-dropdown js-dropdownNames c-dropdown__small" type="text" list="colornames" placeholder="Jordy Blue" >
+        <input class="js-dropdown js-dropdownNames c-dropdown" type="text" list="colornames" placeholder="Jordy Blue">
         <datalist class="js-ColorNames" id="colornames">
           <option value="Jordy Blue">Jordy Blue</option>
+        </datalist>
+        <p class="u-mb-clear">Cube color</p>
+        <p class="c-card-color__name u-mb-clear">Hex:</p>
+        <input class="js-dropdown js-dropdownHex c-dropdown__small" type="text" list="colors" placeholder="#8AB9F1">
+        <datalist class="js-ColorHex" id="colors">
+          <option value="#8AB9F1">#8AB9F1</option>
         </datalist>
       </div>
       <div class="c-card-color__idle">
