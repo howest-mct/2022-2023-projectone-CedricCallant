@@ -137,12 +137,32 @@ def led_thread():
             leds.white_light('warm')
 
 def esp_thread():
+    global sendAck
     time.sleep(9)
     while True:
         if sendAck:
             ser.write('Connect')
             sendAck = False
-        elif 
+        info = ser.read()
+        if info == '.':
+            pass
+        elif info[0:5] == 'lamp':
+            DataRepository.add_to_history(15,11,float(info[7:11]))
+            if info[5] == '1':
+                DataRepository.add_to_history(16,9)
+            elif info[5] == '0':
+                DataRepository.add_to_history(16,10)
+        elif info[0:4] == 'msg':
+            pass
+        elif info[0:4] == 'col':
+            pass
+        elif info[0:5] == 'idle':
+            if info[6:len(info)+1] == 'static':
+                pass
+            elif info[6:len(info)+1] == 'pulse':
+                pass
+            elif info[6:len(info)+1] == 'wave':
+                pass
 
 
 def start_thread():
