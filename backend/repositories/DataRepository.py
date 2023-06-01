@@ -38,4 +38,8 @@ class DataRepository:
         params = [cubeid]
         return Database.get_rows(sql,params)
     
+    def zet_alle_kleuren_in_db(hexcode,name):
+        sql = 'INSERT INTO Color(Hexcode, Name) VALUES (%s, %s)'
+        params = [hexcode, name]
+        return Database.execute_sql(sql,params)
 

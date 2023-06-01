@@ -56,6 +56,7 @@ class Ledstrip:
         self.pixel.fill((0,0,0))
 
     def white_light(self, preference):
+        self.set_Brightness(1.0)
         if preference == 'warm':
             self.pixel.fill((253, 244, 220))
         elif preference == 'cold':
