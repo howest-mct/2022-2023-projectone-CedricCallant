@@ -26,12 +26,15 @@ def hex_to_dec(value):
     h = value[1:7]
     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
-ser = serial.Serial('/dev/serial0')
+
+ser = serial.Serial('/dev/serial0', baudrate=9600, timeout=1)
 print(ser.name)
+ser.flush()
 tekst = f'leds {hex_to_dec("#FF00E4")}'
 to_send = tekst.encode(encoding='utf-8')
-ser.write(to_send)
+# ser.write(to_send)
 sendAck = False
+ser.close()
 
 # print(color_json)
 
@@ -136,13 +139,59 @@ def led_thread():
         else:
             leds.white_light('warm')
 
+lock = threading.Lock()
 def esp_thread():
-    time.sleep(9)
-    while True:
-        if sendAck:
-            ser.write('Connect')
-            sendAck = False
-        elif 
+    # global sendAck
+    # # time.sleep(9)
+    # while True:
+    #     ser = serial.Serial('/dev/serial0', baudrate=9600, timeout=1)
+    #     print(ser.name)
+    #     tekst = f'leds {hex_to_dec("#FF00E4")}'
+    #     to_send = tekst.encode(encoding='utf-8')
+    #     # ser.write(to_send)
+    #     print('lus')
+    #     if sendAck:
+    #         print('ie zit verkeerd')
+    #         ser.write('Connect')
+    #         sendAck = False
+    #     else:
+    #         print('voor info')
+    #         # info = ''
+    #         info = ser.readline()
+    #         print(info)
+    #     if info == '.':
+    #         print('stop')
+    #     elif info[0:5] == 'lamp':
+    #         DataRepository.add_to_history(15,11,float(info[7:11]))
+    #         if info[5] == '1':
+    #             DataRepository.add_to_history(16,9)
+    #         elif info[5] == '0':
+    #             DataRepository.add_to_history(16,10)
+    #     elif info[0:4] == 'msg':
+    #         pass
+    #     elif info[0:4] == 'col':
+    #         pass
+    #     elif info[0:5] == 'idle':
+    #         if info[6:len(info)+1] == 'static':
+    #             pass
+    #         elif info[6:len(info)+1] == 'pulse':
+    #             pass
+    #         elif info[6:len(info)+1] == 'wave':
+    #             pass
+    #     ser.close()
+    # ser = serial.Serial('/dev/serial0', baudrate=9600, timeout=1)  # open serial port 
+    # print(ser.name)       # check which port was really used 
+    # tekst = "test\n"
+    # te_versturen_tekst = tekst.encode(encoding='utf-8')
+    # ser.write(te_versturen_tekst)     # write a string 
+    # while True:
+    #     print('huh')
+    #     ser.write(te_versturen_tekst)   
+    #     line =ser.readline()  
+    #     print(line)
+    # ser.close()   
+    
+        
 
 
 def start_thread():
@@ -153,7 +202,7 @@ def start_thread():
     l.start()
     t.start()
     e.start()
-    print("thread started")
+    print("threads started")
 
 
 # API ENDPOINTS
@@ -238,4 +287,5 @@ if __name__ == '__main__':
         print('KeyboardInterrupt exception is caught')
     finally:
         leds.clear_leds()
+        ser.close()
         print("finished")
