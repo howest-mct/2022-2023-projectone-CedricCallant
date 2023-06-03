@@ -146,6 +146,20 @@ const listenToUI = function () {
     document.querySelector('.js-idlebtn').addEventListener('click', toggleIdle)
     document.querySelector('.js-idlebtn').addEventListener('touchstart', toggleIdle)
   }
+  if (! document.querySelector('.js-login')){
+    document.querySelector('.js-nav__home').addEventListener('click', function(){
+      window.location.href = `index.html?userid=${cubeid}`;
+    })
+    document.querySelector('.js-nav__chat').addEventListener('click', function(){
+      window.location.href = `chat.html?userid=${cubeid}`
+    })
+    document.querySelector('.js-nav__history').addEventListener('click', function(){
+      window.location.href = `history.html?userid=${cubeid}`
+    })
+    document.querySelector('.js-nav__settings').addEventListener('click', function(){
+      window.location.href = `settings.html?userid=${cubeid}`
+    })
+  }
 };
 
 const listenToSocket = function () {
