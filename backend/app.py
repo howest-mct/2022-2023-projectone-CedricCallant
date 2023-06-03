@@ -139,8 +139,8 @@ def led_thread():
         else:
             leds.white_light('warm')
 
-lock = threading.Lock()
-def esp_thread():
+# lock = threading.Lock()
+# def esp_thread():
     # global sendAck
     # # time.sleep(9)
     # while True:
@@ -198,10 +198,10 @@ def start_thread():
     # threading.Timer(10, all_out).start()
     t = threading.Thread(target=all_out, daemon=True)
     l = threading.Thread(target=led_thread, daemon=True)
-    e = threading.Thread(target=esp_thread, daemon=True)
+    # e = threading.Thread(target=esp_thread, daemon=True)
     l.start()
     t.start()
-    e.start()
+    # e.start()
     print("threads started")
 
 

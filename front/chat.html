@@ -12,7 +12,7 @@
   <script src="script/app.js"></script>
 </head>
 
-<body class="js-home">
+<body class="js-chat">
   <header class="c-header">
     <div id="myNav" class="c-overlay">
 
@@ -21,8 +21,8 @@
 
       <!-- Overlay content -->
       <div class="c-overlay__content">
-        <a href="index.html">Home</a>
-        <a href="chat.html">Chat</a>
+        <a href="#">Home</a>
+        <a href="#">Chat</a>
         <a href="#">History</a>
         <a href="#">Settings</a>
       </div>
@@ -38,14 +38,14 @@
       <nav class="c-nav">
         <ul class="c-nav__list o-list-reset">
           <li>
-            <div class="c-nav__item c-nav__item--selected js-nav__home"><svg class="c-nav__svg c-nav__svg--selected" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <div class="c-nav__item js-nav__home"><svg class="c-nav__svg " xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                 <path d="M 16 2.59375 L 15.28125 3.28125 L 2.28125 16.28125 L 3.71875 17.71875 L 5 16.4375 L 5 28 L 14 28 L 14 18 L 18 18 L 18 28 L 27 28 L 27 16.4375 L 28.28125 17.71875 L 29.71875 16.28125 L 16.71875 3.28125 Z M 16 5.4375 L 25 14.4375 L 25 26 L 20 26 L 20 16 L 12 16 L 12 26 L 7 26 L 7 14.4375 Z" />
-              </svg><a class="c-nav__link c-nav__link--selected" href="index.html">Home</a></div>
+              </svg><a class="c-nav__link" href="index.html">Home</a></div>
           </li>
           <li>
-            <div class="c-nav__item js-nav__chat"><svg class="c-nav__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <div class="c-nav__item c-nav__item--selected js-nav__chat"><svg class="c-nav__svg c-nav__svg--selected" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                 <path d="M 3 5 L 3 23 L 8 23 L 8 28.078125 L 14.351563 23 L 29 23 L 29 5 Z M 5 7 L 27 7 L 27 21 L 13.648438 21 L 10 23.917969 L 10 21 L 5 21 Z" />
-              </svg><a class="c-nav__link" href="chat.html">Chat</a></div>
+              </svg><a class="c-nav__link c-nav__link--selected" href="chat.html">Chat</a></div>
           </li>
           <li>
             <div class="c-nav__item js-nav__history"><svg class="c-nav__svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
@@ -65,64 +65,8 @@
     <div></div>
   </header>
   <main class="c-main">
-    <h2>Home</h2>
-    <div class="c-card-power o-layout o-layout--align-center">
-      <button class="c-card-power__btn u-button-reset"><svg class="c-card-power__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-          <path d="M 15 4 L 15 16 L 17 16 L 17 4 Z M 12 4.6875 C 7.347656 6.339844 4 10.785156 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 10.785156 24.652344 6.339844 20 4.6875 L 20 6.84375 C 23.527344 8.390625 26 11.910156 26 16 C 26 21.515625 21.515625 26 16 26 C 10.484375 26 6 21.515625 6 16 C 6 11.910156 8.472656 8.390625 12 6.84375 Z" />
-        </svg></button>
-      <div class="c-card-power__info">
-        <p class="u-mb-clear">Power off this cube</p>
-        <p class="c-card-power__status u-mb-clear">Cube status: &nbsp; <strong>ON</strong></p>
-      </div>
-    </div>
-    <div class="c-card-color o-layout">
-      <div class="c-card-color__selector">
-        <input class="js-dropdown js-dropdownNames c-dropdown" type="text" list="colornames" placeholder="Jordy Blue">
-        <datalist class="js-ColorNames" id="colornames">
-          <option value="Jordy Blue">Jordy Blue</option>
-        </datalist>
-        <p class="u-mb-clear">Cube color</p>
-        <p class="c-card-color__name u-mb-clear">Hex:</p>
-        <input class="js-dropdown js-dropdownHex c-dropdown__small" type="text" list="colors" placeholder="#8AB9F1">
-        <datalist class="js-ColorHex" id="colors">
-          <option value="#8AB9F1">#8AB9F1</option>
-        </datalist>
-      </div>
-      <div class="c-card-color__idle">
-        <p>Idle mode: &nbsp; <strong class="js-idlestate">ON</strong></p>
-        <button class="js-idlebtn c-card-color__idle-btn">Turn OFF</button>
-        <p class="c-card-color__type">Type:</p>
-        <label for="idle_modes" id="idle"></label>
-        <select class="js-modes c-dropdown-types" name="modes" id="idle_modes">
-          <option value="static">static</option>
-          <option value="pulse">pulse</option>
-          <option value="wave">wave</option>
-          <option value="sound">sound</option>
-        </select>
-      </div>
-    </div>
-    <div class="c-card-history">
-      <table class="js-table c-table">
-        <tr>
-          <th class="c-table__head">Time</th>
-          <th class="c-table__head">Type</th>
-          <th class="c-table__head">Value</th>
-          <th class="c-table__head">Description</th>
-        </tr>
-        <tr>
-          <td class="c-table__values">22/03/2023 <br>08:05:00</td>
-          <td class="c-table__values">sensor</td>
-          <td class="c-table__values">2G</td>
-          <td class="c-table__values">Measures the speed at which the cube has been moved</td>
-        </tr>
-        <tr>
-          <td class="c-table__values">22/03/2023<br>08:05:00</td>
-          <td class="c-table__values">actuator</td>
-          <td class="c-table__values">True</td>
-          <td class="c-table__values">Shows if the ledstrip in the cube is on (True) or off (False)</td>
-        </tr>
-      </table>
-    </div>
+    <h2>Chat</h2>
+    <div class="c-card">test</div>
   </main>
 
 </body>
