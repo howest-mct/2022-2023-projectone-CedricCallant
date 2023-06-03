@@ -148,15 +148,23 @@ const listenToUI = function () {
   }
   if (! document.querySelector('.js-login')){
     document.querySelector('.js-nav__home').addEventListener('click', function(){
+      const urlparams = new URLSearchParams(window.location.search)
+      cubeid = urlparams.get('userid')
       window.location.href = `index.html?userid=${cubeid}`;
     })
     document.querySelector('.js-nav__chat').addEventListener('click', function(){
+      const urlparams = new URLSearchParams(window.location.search)
+      cubeid = urlparams.get('userid')
       window.location.href = `chat.html?userid=${cubeid}`
     })
     document.querySelector('.js-nav__history').addEventListener('click', function(){
+      const urlparams = new URLSearchParams(window.location.search)
+      cubeid = urlparams.get('userid')
       window.location.href = `history.html?userid=${cubeid}`
     })
     document.querySelector('.js-nav__settings').addEventListener('click', function(){
+      const urlparams = new URLSearchParams(window.location.search)
+      cubeid = urlparams.get('userid')
       window.location.href = `settings.html?userid=${cubeid}`
     })
   }
