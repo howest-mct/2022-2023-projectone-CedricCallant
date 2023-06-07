@@ -29,6 +29,7 @@ def hex_to_dec(value):
 
 ser = serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=1)  # open serial port 
 print(ser.name)       # check which port was really used 
+ser.write('da:leds (255,0,0)'.encode('utf-8'))
 sendAck = 0
 
 # print(color_json)
@@ -145,10 +146,10 @@ def esp_thread():
             print('ie zit verkeerd')
             ser.write(esp_cmd.encode('utf-8'))
             sendAck = False
-        info = str(ser.readline())
+        info = ser.readline()
         print(info)
-        if info[2] == "":
-            pass
+        if info == "":
+            print('test')
         elif info[2:5] == 'mpu':
             DataRepository.add_to_history(15,11,float(info[6:len(info)-6]))
         elif info[2:len(info)-6] == 'clap detected':
