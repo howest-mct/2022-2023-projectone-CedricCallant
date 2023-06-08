@@ -27,14 +27,11 @@ def hex_to_dec(value):
     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
 
-ser = serial.Serial('/dev/serial0', baudrate=9600, timeout=1)
-print(ser.name)
-ser.flush()
-tekst = f'leds {hex_to_dec("#FF00E4")}'
-to_send = tekst.encode(encoding='utf-8')
-# ser.write(to_send)
-sendAck = False
-ser.close()
+ser = serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=1)  # open serial port 
+print(ser.name)       # check which port was really used 
+ser.write('da:leds (255,0,0)'.encode('utf-8'))
+sendAck = 0
+stop_polling = 0
 
 # print(color_json)
 
@@ -140,68 +137,47 @@ def led_thread():
             leds.white_light('warm')
 
 # lock = threading.Lock()
-# def esp_thread():
-    # global sendAck
-    # # time.sleep(9)
-    # while True:
-    #     ser = serial.Serial('/dev/serial0', baudrate=9600, timeout=1)
-    #     print(ser.name)
-    #     tekst = f'leds {hex_to_dec("#FF00E4")}'
-    #     to_send = tekst.encode(encoding='utf-8')
-    #     # ser.write(to_send)
-    #     print('lus')
-    #     if sendAck:
-    #         print('ie zit verkeerd')
-    #         ser.write('Connect')
-    #         sendAck = False
-    #     else:
-    #         print('voor info')
-    #         # info = ''
-    #         info = ser.readline()
-    #         print(info)
-    #     if info == '.':
-    #         print('stop')
-    #     elif info[0:5] == 'lamp':
-    #         DataRepository.add_to_history(15,11,float(info[7:11]))
-    #         if info[5] == '1':
-    #             DataRepository.add_to_history(16,9)
-    #         elif info[5] == '0':
-    #             DataRepository.add_to_history(16,10)
-    #     elif info[0:4] == 'msg':
-    #         pass
-    #     elif info[0:4] == 'col':
-    #         pass
-    #     elif info[0:5] == 'idle':
-    #         if info[6:len(info)+1] == 'static':
-    #             pass
-    #         elif info[6:len(info)+1] == 'pulse':
-    #             pass
-    #         elif info[6:len(info)+1] == 'wave':
-    #             pass
-    #     ser.close()
-    # ser = serial.Serial('/dev/serial0', baudrate=9600, timeout=1)  # open serial port 
-    # print(ser.name)       # check which port was really used 
-    # tekst = "test\n"
-    # te_versturen_tekst = tekst.encode(encoding='utf-8')
-    # ser.write(te_versturen_tekst)     # write a string 
-    # while True:
-    #     print('huh')
-    #     ser.write(te_versturen_tekst)   
-    #     line =ser.readline()  
-    #     print(line)
-    # ser.close()   
-    
-        
-
+def esp_thread():
+    global ser
+    global sendAck
+    global esp_cmd
+    global stop_polling
+    # time.sleep(9)
+    while True:
+        if sendAck:
+            ser.write(esp_cmd.encode('utf-8'))
+            sendAck = False
+        if(not stop_polling):
+            info = ser.readline()
+            if info == "":
+                pass
+            elif info[2:5] == 'mpu':
+                DataRepository.add_to_history(15,11,float(info[6:len(info)-6]))
+            elif info[2:len(info)-6] == 'clap detected':
+                DataRepository.add_to_history(18,12)
+            elif info[2:4] == 'tled':
+                if info[5] == '1':
+                    DataRepository.add_to_history(16,1)
+                elif info[5] == '0':
+                    DataRepository.add_to_history(16,8)
+            elif info[2:6] == 'lamp':
+                if info[7] == '1':
+                    DataRepository.add_to_history(16,9)
+                elif info[7] == '0':
+                    DataRepository.add_to_history(16,10)
+            elif info[2:6] == 'msgt':
+                pass
+            elif info[2:6] == 'msgc':
+                pass
 
 def start_thread():
     # threading.Timer(10, all_out).start()
     t = threading.Thread(target=all_out, daemon=True)
     l = threading.Thread(target=led_thread, daemon=True)
-    # e = threading.Thread(target=esp_thread, daemon=True)
+    e = threading.Thread(target=esp_thread, daemon=True)
     l.start()
     t.start()
-    # e.start()
+    e.start()
     print("threads started")
 
 
@@ -244,12 +220,31 @@ def initial_connection():
 
 @socketio.on('F2B_read_tag')
 def read_tag(jsonObject):
-    print('Reading the tag...')
-    id = reader.read_id()
-    if id == jsonObject['id']:
-        emit('B2F_login_succes', {'cubeid': id})
+    global stop_polling
+    global cubeid
+    print(jsonObject)
+    if jsonObject['id'] == cubeid:
+        print('Reading the tag...')
+        id = reader.read_id()
+        if id == jsonObject['id']:
+            emit('B2F_login_succes', {'cubeid': id})
+        else:
+            emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
     else:
-        emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
+        stop_polling = 1
+        ser.write('da:rfid'.encode())
+        ser.timeout = 5
+        auth = ser.readline().decode()
+        print(auth)
+        print(auth[0:len(auth)-2])
+        print(jsonObject['id'])
+        stop_polling = 0
+        if auth[0:len(auth)-2] == jsonObject['id']:
+            ser.timeout = 1
+            emit('B2F_login_succes', {'cubeid': jsonObject['id']})
+        else:
+            ser.timeout = 1
+            emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
 
 @socketio.on('F2B_change_idle_mode')
 def change_mode(jsonObject):
@@ -283,6 +278,8 @@ if __name__ == '__main__':
         start_thread()
         print("**** Starting APP ****")
         socketio.run(app, debug=False, host='0.0.0.0')
+        esp_cmd = 'rfid'
+        sendAck = 1
     except KeyboardInterrupt:
         print('KeyboardInterrupt exception is caught')
     finally:

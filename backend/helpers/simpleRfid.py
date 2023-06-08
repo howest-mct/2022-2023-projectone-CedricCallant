@@ -19,6 +19,7 @@ class SimpleMFRC522Custom:
       return id, text
 
   def read_id(self):
+    print('test ok')
     id = self.read_id_no_block()
     while not id:
       id = self.read_id_no_block()
@@ -28,6 +29,7 @@ class SimpleMFRC522Custom:
       (status, TagType) = self.READER.Request(self.READER.PICC_REQIDL)
       if status != self.READER.MI_OK:
           return None
+      print('test2')
       (status, uid) = self.READER.Anticoll()
       if status != self.READER.MI_OK:
           return None
@@ -94,3 +96,4 @@ class SimpleMFRC522Custom:
     deez = (hex(uid[0])[2:].zfill(2)) + (hex(uid[1])[2:].zfill(2)) + (hex(uid[2])[2:].zfill(2)) + (hex(uid[3])[2:].zfill(2))
     return deez.upper()
     # return n
+
