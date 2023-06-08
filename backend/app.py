@@ -29,11 +29,12 @@ def hex_to_dec(value):
 
 ser = serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=1)  # open serial port 
 print(ser.name)       # check which port was really used 
-ser.write('da:leds (255,0,0)'.encode('utf-8'))
-sendAck = 0
 stop_polling = 0
 
 # print(color_json)
+
+def rgb_to_hex(r, g, b):
+    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
 
 def get_idle_mode(help):
     if help['ActieId'] == 1:
@@ -139,35 +140,58 @@ def led_thread():
 # lock = threading.Lock()
 def esp_thread():
     global ser
-    global sendAck
-    global esp_cmd
     global stop_polling
+    r = None
+    g = None
+    b = None
+    rc = DataRepository.get_last_used_color(4,16)
+    print(rc['Value'])
+    ser.write(f'da:leds {hex_to_dec(rc["Value"])}\n'.encode())
+    muc = DataRepository.get_most_used_colors(16)
+    for c in muc:
+        ser.write(f"da:muc {hex_to_dec(c['value'])}\n".encode())
     # time.sleep(9)
     while True:
-        if sendAck:
-            ser.write(esp_cmd.encode('utf-8'))
-            sendAck = False
+        
         if(not stop_polling):
-            info = ser.readline()
+            info = ser.readline().decode()
+            print(info)
             if info == "":
                 pass
-            elif info[2:5] == 'mpu':
-                DataRepository.add_to_history(15,11,float(info[6:len(info)-6]))
-            elif info[2:len(info)-6] == 'clap detected':
+            elif info[0:3] == 'mpu':
+                print('ESP MPU detected, adding to db')
+                DataRepository.add_to_history(15,11,float(info[4:len(info)-2]))
+            elif info[0:len(info)-2] == 'clap detected':
+                print('ESP KY clap detected, adding to db')
                 DataRepository.add_to_history(18,12)
-            elif info[2:4] == 'tled':
+            elif info[0:4] == 'tled':
                 if info[5] == '1':
+                    print('ESP LEDS turned ON, adding to db')
                     DataRepository.add_to_history(16,1)
                 elif info[5] == '0':
+                    print('ESP LEDS turned OFF, adding to db')
                     DataRepository.add_to_history(16,8)
-            elif info[2:6] == 'lamp':
-                if info[7] == '1':
+            elif info[0:4] == 'lamp':
+                if info[5] == '1':
+                    print('ESP LAMP turned ON, adding to db')
                     DataRepository.add_to_history(16,9)
-                elif info[7] == '0':
+                elif info[5] == '0':
+                    print('ESP LAMP turned OFF, adding to db')
                     DataRepository.add_to_history(16,10)
-            elif info[2:6] == 'msgt':
+            elif info[0:2] == 'nc':
+                if info[3] == 'r':
+                    r=info[4:len(info)-2]
+                elif info[3] == 'g':
+                    g=info[4:len(info)-2]
+                elif info[3] == 'b':
+                    b=info[4:len(info)-2]
+                    if (r!=None) and (g!=None) and (b!=None):
+                        print('ESP LEDS changed color, adding to db')
+                        DataRepository.add_to_history(16,4,rgb_to_hex(int(r),int(g),int(b)).upper())
+                        socketio.emit('B2F_curr_color', {'hex': DataRepository.get_last_used_color(4,16)['Value']})
+            elif info[0:5] == 'msgt':
                 pass
-            elif info[2:6] == 'msgc':
+            elif info[0:5] == 'msgc':
                 pass
 
 def start_thread():
@@ -200,6 +224,14 @@ def login():
 def get_colors():
     return color_json, 200
 
+@app.route('/chats/')
+def get_chats():
+    data = DataRepository.get_messages()
+    if data is not None:
+        return jsonify(chats = data), 200
+    else:
+        return jsonify(error = 'De chats zijn niet beschikbaar')
+
 @app.route('/history/small/<id>/')
 def get_small_history(id):
     data = DataRepository.get_last_events(id)
@@ -218,7 +250,16 @@ def initial_connection():
     emit('B2F_curr_color', {'hex': DataRepository.get_last_used_color(4,12)['Value']})
     emit('B2F_toggled', {'mode': idle_mode})
 
-@socketio.on('F2B_read_tag')
+@socketio.on('F2B_get_loadout')
+def initialise_baseinfo(jsonObject):
+    if jsonObject['id'] == cubeid:
+        emit('B2F_curr_color', {'hex': DataRepository.get_last_used_color(4,12)['Value']})
+        emit('B2F_toggled', {'mode': idle_mode})
+    else:
+        emit('B2F_curr_color', {'hex': DataRepository.get_last_used_color(4,16)['Value']})
+        # emit('B2F_toggled', {'mode': idle_mode})
+
+@socketio.on('F2B_read_tag') #Make sure the Serial.println on line 148 is disabled in the esp32 code 
 def read_tag(jsonObject):
     global stop_polling
     global cubeid
@@ -248,28 +289,57 @@ def read_tag(jsonObject):
 
 @socketio.on('F2B_change_idle_mode')
 def change_mode(jsonObject):
+    global ser
     global led_mode
-    led_mode = jsonObject['new_mode']
+    global stop_polling
+    print(jsonObject)
+    if jsonObject['id'] == cubeid:
+        led_mode = jsonObject['new_mode']
+    else:
+        stop_polling = 1
+        ser.write(("da:idle " + jsonObject['new_mode']).encode())
+        stop_polling = 0
 
 @socketio.on('F2B_change_color')
 def change_color(jsonObject):
     global led_color
-    led_color = hex_to_dec(jsonObject['hexCode'])
-    DataRepository.add_to_history(12,4,jsonObject['hexCode'])
+    global stop_polling
+    print(jsonObject)
+    if jsonObject['id'] == cubeid:
+        led_color = hex_to_dec(jsonObject['hexCode'])
+        DataRepository.add_to_history(12,4,jsonObject['hexCode'])
+    else:
+        stop_polling = 1
+        ser.write(f"da:leds {hex_to_dec(jsonObject['hexCode'])}".encode())
+        DataRepository.add_to_history(16,4,jsonObject['hexCode'])
+        stop_polling = 0
     print(f'Color {jsonObject["hexCode"]} added to database')
 
 @socketio.on('F2B_toggle_idle')
 def toggle_idle(jsonObject):
     global idle_mode
-    if jsonObject['state'] == 'Turn OFF':
-        idle_mode = False
-        DataRepository.add_to_history(12,8)
-        print('Leds turned OFF')
-    elif jsonObject['state'] == 'Turn ON':
-        idle_mode = True
-        DataRepository.add_to_history(12,1) 
-        print('Leds turned ON')
-    emit('B2F_toggled', {'mode': idle_mode})
+    global stop_polling
+    if jsonObject['id'] == cubeid:
+        if jsonObject['state'] == 'Turn OFF':
+            idle_mode = False
+            help_mode = False
+            DataRepository.add_to_history(12,8)
+            print('Leds turned OFF')
+        elif jsonObject['state'] == 'Turn ON':
+            idle_mode = True
+            help_mode = True
+            DataRepository.add_to_history(12,1) 
+            print('Leds turned ON')
+    else:
+        if jsonObject['state'] == 'Turn OFF':
+            help_mode = False
+            ser.write("da:tled 0".encode())
+            DataRepository.add_to_history(16,8)
+        elif jsonObject['state'] == 'Turn ON':
+            help_mode = True
+            ser.write("da:tled 1".encode())
+            DataRepository.add_to_history(16,1)
+    emit('B2F_toggled', {'mode': help_mode})
 
 
 
@@ -278,8 +348,6 @@ if __name__ == '__main__':
         start_thread()
         print("**** Starting APP ****")
         socketio.run(app, debug=False, host='0.0.0.0')
-        esp_cmd = 'rfid'
-        sendAck = 1
     except KeyboardInterrupt:
         print('KeyboardInterrupt exception is caught')
     finally:
