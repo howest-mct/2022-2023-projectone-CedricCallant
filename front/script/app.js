@@ -182,6 +182,12 @@ const listenToUI = function () {
     document.querySelector('.js-dropdownNames').addEventListener('input', datalistevent)
     document.querySelector('.js-idlebtn').addEventListener('click', toggleIdle)
     document.querySelector('.js-idlebtn').addEventListener('touchstart', toggleIdle)
+  } else if (document.querySelector('.js-chat')){
+    document.querySelector('.js-chatbar').addEventListener('input',function(){
+      if (! this.value.length <= 31){
+        this.style.backgroundColor = '#FF0000'
+      }
+    })
   }
   if (!document.querySelector('.js-login')) {
     document.querySelector('.js-nav__home').addEventListener('click', function () {
