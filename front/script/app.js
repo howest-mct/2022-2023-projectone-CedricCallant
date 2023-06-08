@@ -25,14 +25,10 @@ const cleanupValue = function (value) {
   }
 }
 
-const checkSender = function(userid){
-  console.info(cubeid)
-  console.info(userid)
-  if(userid == cubeid){
-    console.info('yes')
+const checkSender = function (userid) {
+  if (userid == cubeid) {
     return `c-message--own`
-  }else{
-    console.info('nes')
+  } else {
     return ``
   }
 }
@@ -41,6 +37,15 @@ const showRFID = function (jsonObject) {
   console.info(jsonObject)
   document.querySelector('.js-login').innerHTML = 'Hold the tag in front of your cube'
   socketio.emit('F2B_read_tag', { id: jsonObject['CubeId'] })
+}
+
+const hexToRgb = function (hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
 }
 
 const showloginError = function (err) {
@@ -131,23 +136,28 @@ const showHistory = function (jsonObject) {
   document.querySelector('.js-table').innerHTML = htmlString
 }
 
-const showChats = function(jsonObject){
+const showChats = function (jsonObject) {
   console.info(jsonObject)
-  chats =jsonObject['chats']
+  chats = jsonObject['chats']
   htmlString = ''
-  for(let c of chats){
+  for (let c of chats) {
+    console.info(c.Hexcode)
     htmlString += `
     <div class="c-message ${checkSender(c.SenderCubeId)}">
     <!-- <div class="c-message__sender">testuser</div> -->
     <div class="message_content">
-      <div class="c-message__bubble">
+      <div class="js-bubbles c-message__bubble" data-bcolor="${c.Hexcode}">
         <p class="c-message_text u-mb-clear">${c.Message}</p>
       </div>
-      <div class="c-message__time">${c.Tijdstip.substring(c.Tijdstip.length-12, c.Tijdstip.length-7)}</div>
+      <div class="c-message__time">${c.Tijdstip.substring(c.Tijdstip.length - 12, c.Tijdstip.length - 7)}</div>
     </div>
   </div>`
   }
   document.querySelector('.js-messages').innerHTML = htmlString;
+  for (let b of document.querySelectorAll('.js-bubbles')) { 
+    b.style.boxShadow = `0px 4px 8px rgba(${hexToRgb(b.getAttribute('data-bcolor'))['r']},${hexToRgb(b.getAttribute('data-bcolor'))['g']},${hexToRgb(b.getAttribute('data-bcolor'))['b']},0.5)`
+  }
+
 }
 
 const toggleIdle = function () {
@@ -182,11 +192,18 @@ const listenToUI = function () {
     document.querySelector('.js-dropdownNames').addEventListener('input', datalistevent)
     document.querySelector('.js-idlebtn').addEventListener('click', toggleIdle)
     document.querySelector('.js-idlebtn').addEventListener('touchstart', toggleIdle)
-  } else if (document.querySelector('.js-chat')){
-    document.querySelector('.js-chatbar').addEventListener('input',function(){
-      if (! this.value.length <= 31){
+  } else if (document.querySelector('.js-chat')) {
+    
+    document.querySelector('.js-chatbar').addEventListener('input', function () {
+      if (this.value.length > 32) {
         this.style.backgroundColor = '#FF0000'
+        this.setCustomValidity('The message needs to be under 32 characters')
+      } else {
+        this.style.backgroundColor = '#FFFFFF'
       }
+    })
+    document.querySelector('.js-send_btn').addEventListener('click',function(){
+
     })
   }
   if (!document.querySelector('.js-login')) {
