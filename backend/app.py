@@ -31,6 +31,7 @@ ser = serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=1)  # open serial por
 print(ser.name)       # check which port was really used 
 ser.write('da:leds (255,0,0)'.encode('utf-8'))
 sendAck = 0
+stop_polling = 0
 
 # print(color_json)
 
@@ -140,34 +141,34 @@ def esp_thread():
     global ser
     global sendAck
     global esp_cmd
+    global stop_polling
     # time.sleep(9)
     while True:
         if sendAck:
-            print('ie zit verkeerd')
             ser.write(esp_cmd.encode('utf-8'))
             sendAck = False
-        info = ser.readline()
-        print(info)
-        if info == "":
-            print('test')
-        elif info[2:5] == 'mpu':
-            DataRepository.add_to_history(15,11,float(info[6:len(info)-6]))
-        elif info[2:len(info)-6] == 'clap detected':
-            DataRepository.add_to_history(18,12)
-        elif info[2:4] == 'tled':
-            if info[5] == '1':
-                DataRepository.add_to_history(16,1)
-            elif info[5] == '0':
-                DataRepository.add_to_history(16,8)
-        elif info[2:6] == 'lamp':
-            if info[7] == '1':
-                DataRepository.add_to_history(16,9)
-            elif info[7] == '0':
-                DataRepository.add_to_history(16,10)
-        elif info[2:6] == 'msgt':
-            pass
-        elif info[2:6] == 'msgc':
-            pass
+        if(not stop_polling):
+            info = ser.readline()
+            if info == "":
+                pass
+            elif info[2:5] == 'mpu':
+                DataRepository.add_to_history(15,11,float(info[6:len(info)-6]))
+            elif info[2:len(info)-6] == 'clap detected':
+                DataRepository.add_to_history(18,12)
+            elif info[2:4] == 'tled':
+                if info[5] == '1':
+                    DataRepository.add_to_history(16,1)
+                elif info[5] == '0':
+                    DataRepository.add_to_history(16,8)
+            elif info[2:6] == 'lamp':
+                if info[7] == '1':
+                    DataRepository.add_to_history(16,9)
+                elif info[7] == '0':
+                    DataRepository.add_to_history(16,10)
+            elif info[2:6] == 'msgt':
+                pass
+            elif info[2:6] == 'msgc':
+                pass
 
 def start_thread():
     # threading.Timer(10, all_out).start()
@@ -219,7 +220,10 @@ def initial_connection():
 
 @socketio.on('F2B_read_tag')
 def read_tag(jsonObject):
-    if jsonObject['id'] is cubeid:
+    global stop_polling
+    global cubeid
+    print(jsonObject)
+    if jsonObject['id'] == cubeid:
         print('Reading the tag...')
         id = reader.read_id()
         if id == jsonObject['id']:
@@ -227,11 +231,19 @@ def read_tag(jsonObject):
         else:
             emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
     else:
-        ser.write('rfid')
-        auth = ser.readline()
-        if auth[2:len(auth)-6] == 'rfidack 1':
-            emit('B2F_login_succes', {'cubeid': id})
+        stop_polling = 1
+        ser.write('da:rfid'.encode())
+        ser.timeout = 5
+        auth = ser.readline().decode()
+        print(auth)
+        print(auth[0:len(auth)-2])
+        print(jsonObject['id'])
+        stop_polling = 0
+        if auth[0:len(auth)-2] == jsonObject['id']:
+            ser.timeout = 1
+            emit('B2F_login_succes', {'cubeid': jsonObject['id']})
         else:
+            ser.timeout = 1
             emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
 
 @socketio.on('F2B_change_idle_mode')
