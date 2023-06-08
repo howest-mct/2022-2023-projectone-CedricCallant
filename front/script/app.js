@@ -25,6 +25,18 @@ const cleanupValue = function (value) {
   }
 }
 
+const checkSender = function(userid){
+  console.info(cubeid)
+  console.info(userid)
+  if(userid == cubeid){
+    console.info('yes')
+    return `c-message--own`
+  }else{
+    console.info('nes')
+    return ``
+  }
+}
+
 const showRFID = function (jsonObject) {
   console.info(jsonObject)
   document.querySelector('.js-login').innerHTML = 'Hold the tag in front of your cube'
@@ -64,7 +76,7 @@ const showChosenColor = function (idk) {
       document.querySelector('.c-card-color__selector').style.backgroundColor = c.hexCode
       document.querySelector('.c-dropdown').style.backgroundColor = c.hexCode
       document.querySelector('.c-dropdown__small').style.backgroundColor = c.hexCode
-      socketio.emit('F2B_change_color', { 'hexCode': c.hexCode })
+      socketio.emit('F2B_change_color', { 'id': cubeid, 'hexCode': c.hexCode })
     }
   }
   showColors2()
@@ -119,8 +131,27 @@ const showHistory = function (jsonObject) {
   document.querySelector('.js-table').innerHTML = htmlString
 }
 
+const showChats = function(jsonObject){
+  console.info(jsonObject)
+  chats =jsonObject['chats']
+  htmlString = ''
+  for(let c of chats){
+    htmlString += `
+    <div class="c-message ${checkSender(c.SenderCubeId)}">
+    <!-- <div class="c-message__sender">testuser</div> -->
+    <div class="message_content">
+      <div class="c-message__bubble">
+        <p class="c-message_text u-mb-clear">${c.Message}</p>
+      </div>
+      <div class="c-message__time">${c.Tijdstip.substring(c.Tijdstip.length-12, c.Tijdstip.length-7)}</div>
+    </div>
+  </div>`
+  }
+  document.querySelector('.js-messages').innerHTML = htmlString;
+}
+
 const toggleIdle = function () {
-  socketio.emit('F2B_toggle_idle', { 'state': this.innerHTML })
+  socketio.emit('F2B_toggle_idle', { 'id': cubeid, 'state': this.innerHTML })
 }
 
 const listenToUI = function () {
@@ -138,31 +169,37 @@ const listenToUI = function () {
       }
     })
   } else if (document.querySelector('.js-home')) {
-    document.querySelector('.js-modes').addEventListener('change', function () {
-      socketio.emit('F2B_change_idle_mode', { new_mode: this.value })
+    document.querySelector('.js-modes').addEventListener('change', function (e) {
+      if (e.handled !== true) {
+        e.handled = true;
+        return;
+      }
+      console.info('trigger')
+      console.info(this.value)
+      socketio.emit('F2B_change_idle_mode', { 'id': cubeid, 'new_mode': this.value })
     })
     document.querySelector('.js-dropdownHex').addEventListener('input', datalistevent)
     document.querySelector('.js-dropdownNames').addEventListener('input', datalistevent)
     document.querySelector('.js-idlebtn').addEventListener('click', toggleIdle)
     document.querySelector('.js-idlebtn').addEventListener('touchstart', toggleIdle)
   }
-  if (! document.querySelector('.js-login')){
-    document.querySelector('.js-nav__home').addEventListener('click', function(){
+  if (!document.querySelector('.js-login')) {
+    document.querySelector('.js-nav__home').addEventListener('click', function () {
       const urlparams = new URLSearchParams(window.location.search)
       cubeid = urlparams.get('userid')
       window.location.href = `index.html?userid=${cubeid}`;
     })
-    document.querySelector('.js-nav__chat').addEventListener('click', function(){
+    document.querySelector('.js-nav__chat').addEventListener('click', function () {
       const urlparams = new URLSearchParams(window.location.search)
       cubeid = urlparams.get('userid')
       window.location.href = `chat.html?userid=${cubeid}`
     })
-    document.querySelector('.js-nav__history').addEventListener('click', function(){
+    document.querySelector('.js-nav__history').addEventListener('click', function () {
       const urlparams = new URLSearchParams(window.location.search)
       cubeid = urlparams.get('userid')
       window.location.href = `history.html?userid=${cubeid}`
     })
-    document.querySelector('.js-nav__settings').addEventListener('click', function(){
+    document.querySelector('.js-nav__settings').addEventListener('click', function () {
       const urlparams = new URLSearchParams(window.location.search)
       cubeid = urlparams.get('userid')
       window.location.href = `settings.html?userid=${cubeid}`
@@ -173,6 +210,9 @@ const listenToUI = function () {
 const listenToSocket = function () {
   socketio.on('connect', function () {
     console.log('verbonden met socket webserver');
+    if (document.querySelector('.js-home')) {
+      socketio.emit('F2B_get_loadout', { 'id': cubeid })
+    }
   });
   if (document.querySelector('.js-login')) {
     socketio.on('B2F_login_succes', function (jsonObject) {
@@ -211,23 +251,23 @@ const listenToSocket = function () {
         document.querySelector('.js-idlebtn').innerHTML = 'Turn ON'
       }
     })
-    socketio.on('B2F_ack_change', function(jsonObject){
+    socketio.on('B2F_ack_change', function (jsonObject) {
       let htmlString = `<tr>
   <th class="c-table__head">Time</th>
   <th class="c-table__head">Type</th>
   <th class="c-table__head">Value</th>
   <th class="c-table__head">Description</th>
 </tr>`
-  for (let t of jsonObject) {
-    htmlString += `
+      for (let t of jsonObject) {
+        htmlString += `
   <tr>
     <td class="c-table__values">${cleanupTime(t.Time)}</td>
     <td class="c-table__values">${t.Type}</td>
     <td class="c-table__values">${cleanupValue(t.Value)}</td>
     <td class="c-table__values">${t.Function}</td>
   </tr>`
-  }
-  document.querySelector('.js-table').innerHTML = htmlString
+      }
+      document.querySelector('.js-table').innerHTML = htmlString
     })
   }
 };
@@ -243,6 +283,14 @@ const init = function () {
     } else {
       cubeid = urlparams.get('userid')
       handleData(`http://${window.location.hostname}:5000/color/`, showColors, showError)
+    }
+  } else if (document.querySelector('.js-chat')) {
+    const urlparams = new URLSearchParams(window.location.search);
+    if (urlparams == 0) {
+      window.location.href = 'inlog.html'
+    } else {
+      cubeid = urlparams.get('userid')
+      handleData(`http://${window.location.hostname}:5000/chats/`, showChats, showError)
     }
   }
 };
