@@ -1,5 +1,6 @@
 import threading
 import time
+from datetime import datetime
 from repositories.DataRepository import DataRepository
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
@@ -56,6 +57,7 @@ GPIO.setup(sound_detection, GPIO.IN)
 
 
 leds = Ledstrip() #Ledstrip class
+leds_on = True
 led_mode= 'static'
 led_prev_mode = 'static'
 led_color = hex_to_dec(DataRepository.get_last_used_color(4,12)['Value'])
@@ -82,8 +84,6 @@ def set_led_mode():
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
             return DataRepository.add_to_history(12,7)
-    elif led_mode == 'sound':
-        pass
 
 
 app = Flask(__name__)
@@ -98,29 +98,35 @@ CORS(app)
 # werk enkel met de packages gevent en gevent-websocket.
 def all_out():
     global lamp
+    global leds_on
     timer = time.time()
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
     # moment = time.time()
     while True:
-        acc_state = accelero.read_data()['acc']
-        if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
-            if time.time() >= timer + 3:
-                DataRepository.add_to_history(11,11, acc_state['x'])
-                lamp = not lamp
-                print('lamp status veranderd')
-                if lamp:
-                    DataRepository.add_to_history(12,9)
-                else:
-                    DataRepository.add_to_history(12,10)
-                timer = time.time()
+        try:
+            acc_state = accelero.read_data()['acc']
+            if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
+                if time.time() >= timer + 3:
+                    print('movement detected')
+                    DataRepository.add_to_history(11,11, acc_state['x'])
+                    lamp = not lamp
+                    print('lamp state changed')
+                    if lamp:
+                        DataRepository.add_to_history(12,9)
+                    else:
+                        DataRepository.add_to_history(12,10)
+                    timer = time.time()
+        except:
+            print('poeperror')
         if GPIO.input(sound_detection):
-            lamp = not lamp
-            if lamp:
-                    DataRepository.add_to_history(12,9)
+            print('clap detected')
+            leds_on = not leds_on
+            if leds_on:
+                    DataRepository.add_to_history(12,1)
             else:
-                DataRepository.add_to_history(12,10)
-            print('lamp status veranderd')
+                DataRepository.add_to_history(12,8)
+            print('led state changed')
         # if time.time() >= moment + 60:
         #     events = DataRepository.get_last_events(cubeid)
         #     socketio.emit('B2F_ack_change', {'changes': events})
@@ -130,7 +136,7 @@ def led_thread():
     time.sleep(11)
     while True:
         if not lamp:
-            if idle_mode:
+            if leds_on:
                 set_led_mode()
             else:
                 leds.clear_leds()
@@ -203,7 +209,6 @@ def start_thread():
     t.start()
     e.start()
     print("threads started")
-
 
 # API ENDPOINTS
 @app.route('/')
@@ -317,16 +322,16 @@ def change_color(jsonObject):
 
 @socketio.on('F2B_toggle_idle')
 def toggle_idle(jsonObject):
-    global idle_mode
+    global leds_on
     global stop_polling
     if jsonObject['id'] == cubeid:
         if jsonObject['state'] == 'Turn OFF':
-            idle_mode = False
+            leds_on = False
             help_mode = False
             DataRepository.add_to_history(12,8)
             print('Leds turned OFF')
         elif jsonObject['state'] == 'Turn ON':
-            idle_mode = True
+            leds_on = True
             help_mode = True
             DataRepository.add_to_history(12,1) 
             print('Leds turned ON')
@@ -344,7 +349,15 @@ def toggle_idle(jsonObject):
 @socketio.on('F2B_send_message')
 def receive_msg(jsonObject):
     print(f"{jsonObject['id']} says {jsonObject['msg']} in color: {jsonObject['color']}")
-    socketio.emit('B2F_new_message', {'msg': jsonObject})
+    time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if jsonObject['id'] == cubeid:
+        data = DataRepository.write_message(time,jsonObject['id'], 'E34F0FE7',jsonObject['color'], jsonObject['msg'])
+    else:
+        data = DataRepository.write_message(time,jsonObject['id'], cubeid,jsonObject['color'], jsonObject['msg'])
+    if data != None:
+        socketio.emit('B2F_new_message', {'msg': jsonObject, 'time': time})
+    else:
+        emit('B2F_message_error', {'error': 'Something went wrong when sending the message'})
 
 
 if __name__ == '__main__':

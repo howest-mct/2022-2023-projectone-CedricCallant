@@ -257,8 +257,8 @@ const listenToUI = function () {
             document.querySelector('.js-sendbtn').style.display = 'none'
             document.querySelector('.js-colorPicker').style.display = 'none';
             document.querySelector('.js-colorDecision').style.display = 'none'
-            let dates = new Date().toLocaleString('fr-BE',{hour12: false})
-            socketio.emit('F2B_send_message', { 'id': cubeid, 'msg': text, 'color': chosenColor, 'time': dates })
+            // let dates = new Date().toLocaleString('fr-BE',{hour12: false})
+            socketio.emit('F2B_send_message', { 'id': cubeid, 'msg': text, 'color': chosenColor})
           })
         })
       }
@@ -355,7 +355,7 @@ const listenToSocket = function () {
     })
   } else if (document.querySelector('.js-chat')) {
     socketio.on('B2F_new_message', function (jsonObject) {
-      console.info(jsonObject)
+      console.info(jsonObject['time'])
       chats = jsonObject['msg']
       htmlString = ''
       htmlString += `
@@ -365,7 +365,7 @@ const listenToSocket = function () {
       <div class="js-bubbles c-message__bubble" data-bcolor="${chats.color}">
         <p class="c-message_text u-mb-clear">${chats.msg}</p>
       </div>
-      <div class="c-message__time">${chats.time.substring(11, chats.time.length - 3)}</div>
+      <div class="c-message__time">${jsonObject['time'].substring(11, jsonObject['time'].length-3)}</div>
     </div>
   </div>`
       document.querySelector('.js-messages').innerHTML += htmlString;

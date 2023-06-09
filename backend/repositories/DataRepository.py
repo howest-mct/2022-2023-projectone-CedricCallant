@@ -51,4 +51,9 @@ class DataRepository:
     def get_messages():
         sql = 'SELECT * FROM ChatMessage'
         return Database.get_rows(sql)
+    
+    def write_message(time, senderid, receiverid, hexcode, message):
+        sql = 'insert into ChatMessage (Tijdstip, SenderCubeId, ReceiverCubeId, HexCode,Message) VALUES (%s,%s,%s, %s, %s)'
+        params = [time, senderid, receiverid, hexcode, message]
+        return Database.execute_sql(sql, params)
 
