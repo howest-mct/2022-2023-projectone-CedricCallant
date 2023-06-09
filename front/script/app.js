@@ -48,6 +48,10 @@ const hexToRgb = function (hex) {
   } : null;
 }
 
+const saveColor = function (jsonObject) {
+  colors = jsonObject
+}
+
 const showloginError = function (err) {
   console.error(err)
   document.querySelector('.js-loginveld').style.border = "2px solid #FF0000";
@@ -154,7 +158,7 @@ const showChats = function (jsonObject) {
   </div>`
   }
   document.querySelector('.js-messages').innerHTML = htmlString;
-  for (let b of document.querySelectorAll('.js-bubbles')) { 
+  for (let b of document.querySelectorAll('.js-bubbles')) {
     b.style.boxShadow = `0px 4px 8px rgba(${hexToRgb(b.getAttribute('data-bcolor'))['r']},${hexToRgb(b.getAttribute('data-bcolor'))['g']},${hexToRgb(b.getAttribute('data-bcolor'))['b']},0.5)`
   }
 
@@ -193,17 +197,60 @@ const listenToUI = function () {
     document.querySelector('.js-idlebtn').addEventListener('click', toggleIdle)
     document.querySelector('.js-idlebtn').addEventListener('touchstart', toggleIdle)
   } else if (document.querySelector('.js-chat')) {
-    
     document.querySelector('.js-chatbar').addEventListener('input', function () {
       if (this.value.length > 32) {
         this.style.backgroundColor = '#FF0000'
-        this.setCustomValidity('The message needs to be under 32 characters')
+        document.querySelector('.js-send_btn').disabled = true
       } else {
         this.style.backgroundColor = '#FFFFFF'
+        document.querySelector('.js-send_btn').disabled = false
       }
     })
-    document.querySelector('.js-send_btn').addEventListener('click',function(){
-
+    document.querySelector('.js-send_btn').addEventListener('click', function () {
+      document.querySelector('.js-colorPicker').style.display = 'initial';
+      document.querySelector('.js-colorPickerClose').addEventListener('click', function () {
+        document.querySelector('.js-colorPicker').style.display = 'none'
+      })
+      for (let c of document.querySelectorAll('.js-colorbtn')) {
+        console.info(c)
+        c.addEventListener('click', function () {
+          console.info(this)
+          let searchCol = 'other';
+          let htmlString = ''
+          if (c.innerHTML == 'Happy') {
+            searchCol = 'yellow'
+          } else if (c.innerHTML == 'Sad') {
+            searchCol = 'blue'
+          } else if (c.innerHTML == 'Disgust') {
+            searchCol = 'green'
+          } else if (c.innerHTML == 'Anger') {
+            searchCol = 'red'
+          } else if (c.innerHTML == 'Fear') {
+            searchCol = 'purple'
+          }
+          document.querySelector('.js-colorDecision').style.display = 'initial';
+          if (searchCol != 'other') {
+            for (let col of colors['results']) {
+              if (col['name'].toLowerCase().includes(searchCol)) {
+                htmlString += `<button class="js-colorDecision-color c-colorDecision__color o-button-reset" data-hexcode="${col.hexCode}">${col.name}</button>`
+              }
+            }
+          } else {
+            for (let col of colors['results']) {
+              if (!col['name'].toLowerCase().includes('yellow') && !col['name'].toLowerCase().includes('blue') && !col['name'].toLowerCase().includes('red') && !col['name'].toLowerCase().includes('green') && !col['name'].toLowerCase().includes('purple')) {
+                htmlString += `<button class="js-colorDecision-color c-colorDecision__color o-button-reset" data-hexcode="${col.hexCode}">${col.name}</button>`
+              }
+            }
+          }
+          document.querySelector('.js-color-colorname').innerHTML = htmlString;
+          for (let cd of document.querySelectorAll('.js-colorDecision-color')) {
+            cd.style.backgroundColor = `${cd.getAttribute('data-hexcode')}`
+          }
+        })
+      }
+    })
+    document.querySelector('.js-colorDecision__back').addEventListener('click', function () {
+      document.querySelector('.js-colorDecision').style.display = 'none'
     })
   }
   if (!document.querySelector('.js-login')) {
@@ -313,6 +360,7 @@ const init = function () {
       window.location.href = 'inlog.html'
     } else {
       cubeid = urlparams.get('userid')
+      handleData(`http://${window.location.hostname}:5000/color/`, saveColor, showError)
       handleData(`http://${window.location.hostname}:5000/chats/`, showChats, showError)
     }
   }

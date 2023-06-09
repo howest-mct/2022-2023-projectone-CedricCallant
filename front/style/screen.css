@@ -631,7 +631,7 @@ html, .c-login {
   justify-items: center;
 }
 .c-card-chat__chatbar {
-  width: calc(90% - 100px);
+  width: calc(100% - 60px);
   height: 48px;
   border-radius: 15px;
   border: #F5F5F5 solid 1px;
@@ -677,6 +677,99 @@ html, .c-login {
 }
 .c-message__time {
   color: #868e96;
+}
+
+.c-colorPicker {
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  cursor: pointer;
+}
+.c-colorPicker__card {
+  padding: 32px;
+  background-color: white;
+  border-radius: 15px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 50%;
+  height: 50%;
+}
+.c-colorPicker__head {
+  text-align: center;
+  font-size: 27px;
+}
+.c-colorPicker__emotions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.c-colorPicker__emotion {
+  border-radius: 15px;
+  flex: 30%;
+  padding: 16px 32px;
+  margin: 16px;
+}
+.c-colorPicker__emotion:hover {
+  color: white;
+}
+.c-colorPicker__emotion--happy:hover {
+  background-color: #FFC40C;
+}
+.c-colorPicker__emotion--sad:hover {
+  background-color: #0070FF;
+}
+.c-colorPicker__emotion--anger:hover {
+  background-color: #ED2939;
+}
+.c-colorPicker__emotion--disgust:hover {
+  background-color: #03C03C;
+}
+.c-colorPicker__emotion--fear:hover {
+  background-color: #8F00FF;
+}
+.c-colorPicker__emotion--other:hover {
+  background-color: #AA98A9;
+}
+
+.c-colorDecision {
+  display: none;
+  padding: 32px;
+  background-color: white;
+  border-radius: 15px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 50%;
+  height: 50%;
+  overflow-y: auto;
+}
+.c-colorDecision__colors {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.c-colorDecision__color {
+  border-radius: 15px;
+  flex: 30%;
+  padding: 16px 32px;
+  margin: 16px;
+  background-color: #ED2939;
 }
 
 .c-dropdown {
