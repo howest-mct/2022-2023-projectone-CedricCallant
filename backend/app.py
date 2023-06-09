@@ -155,7 +155,7 @@ def esp_thread():
         
         if(not stop_polling):
             info = ser.readline().decode()
-            print(info)
+            # print(info)
             if info == "":
                 pass
             elif info[0:3] == 'mpu':
@@ -341,6 +341,10 @@ def toggle_idle(jsonObject):
             DataRepository.add_to_history(16,1)
     emit('B2F_toggled', {'mode': help_mode})
 
+@socketio.on('F2B_send_message')
+def receive_msg(jsonObject):
+    print(f"{jsonObject['id']} says {jsonObject['msg']} in color: {jsonObject['color']}")
+    socketio.emit('B2F_new_message', {'msg': jsonObject})
 
 
 if __name__ == '__main__':

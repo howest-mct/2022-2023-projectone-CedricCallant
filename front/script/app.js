@@ -207,6 +207,7 @@ const listenToUI = function () {
       }
     })
     document.querySelector('.js-send_btn').addEventListener('click', function () {
+      let text = document.querySelector('.js-chatbar').value
       document.querySelector('.js-colorPicker').style.display = 'initial';
       document.querySelector('.js-colorPickerClose').addEventListener('click', function () {
         document.querySelector('.js-colorPicker').style.display = 'none'
@@ -243,9 +244,22 @@ const listenToUI = function () {
             }
           }
           document.querySelector('.js-color-colorname').innerHTML = htmlString;
+          let chosenColor;
           for (let cd of document.querySelectorAll('.js-colorDecision-color')) {
             cd.style.backgroundColor = `${cd.getAttribute('data-hexcode')}`
+            cd.addEventListener('click', function () {
+              chosenColor = cd.getAttribute('data-hexcode')
+              document.querySelector('.js-sendbtn').style.display = 'initial'
+            })
           }
+
+          document.querySelector('.js-sendbtn').addEventListener('click', function () {
+            document.querySelector('.js-sendbtn').style.display = 'none'
+            document.querySelector('.js-colorPicker').style.display = 'none';
+            document.querySelector('.js-colorDecision').style.display = 'none'
+            let dates = new Date().toLocaleString('fr-BE',{hour12: false})
+            socketio.emit('F2B_send_message', { 'id': cubeid, 'msg': text, 'color': chosenColor, 'time': dates })
+          })
         })
       }
     })
@@ -339,7 +353,27 @@ const listenToSocket = function () {
       }
       document.querySelector('.js-table').innerHTML = htmlString
     })
-  }
+  } else if (document.querySelector('.js-chat')) {
+    socketio.on('B2F_new_message', function (jsonObject) {
+      console.info(jsonObject)
+      chats = jsonObject['msg']
+      htmlString = ''
+      htmlString += `
+    <div class="c-message ${checkSender(chats['id'])}">
+    <!-- <div class="c-message__sender">testuser</div> -->
+    <div class="message_content">
+      <div class="js-bubbles c-message__bubble" data-bcolor="${chats.color}">
+        <p class="c-message_text u-mb-clear">${chats.msg}</p>
+      </div>
+      <div class="c-message__time">${chats.time.substring(11, chats.time.length - 3)}</div>
+    </div>
+  </div>`
+      document.querySelector('.js-messages').innerHTML += htmlString;
+    for (let b of document.querySelectorAll('.js-bubbles')) {
+      b.style.boxShadow = `0px 4px 8px rgba(${hexToRgb(b.getAttribute('data-bcolor'))['r']},${hexToRgb(b.getAttribute('data-bcolor'))['g']},${hexToRgb(b.getAttribute('data-bcolor'))['b']},0.5)`
+    }
+  })
+}
 };
 
 const init = function () {

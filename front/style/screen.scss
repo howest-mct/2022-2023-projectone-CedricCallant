@@ -937,7 +937,6 @@ html, .c-login{
   padding: 32px;
   background-color: $color-text-light;
   border-radius: 15px;
-  position: absolute;
   top: 0;
   bottom: 0;
   margin: auto;
@@ -948,7 +947,10 @@ html, .c-login{
   height: 50%;
   overflow-y: auto;
 
+
   &__colors{
+    position: absolute;
+    overflow-y: auto;
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
@@ -960,6 +962,23 @@ html, .c-login{
     padding: 16px 32px;
     margin: 16px;
     background-color: #ED2939;
+
+    &:focus{
+      opacity: 0.5;
+    }
+  }
+
+  &__sendbtn{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    bottom: 27vh;
+    right: 40%;
+    left: 40%;
+    padding: 16px 32px;
+    background-color: $color-primary;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba($color: #000000, $alpha: 0.3);
   }
 }
 

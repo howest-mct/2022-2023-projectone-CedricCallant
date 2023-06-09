@@ -748,7 +748,6 @@ html, .c-login {
   padding: 32px;
   background-color: white;
   border-radius: 15px;
-  position: absolute;
   top: 0;
   bottom: 0;
   margin: auto;
@@ -760,6 +759,8 @@ html, .c-login {
   overflow-y: auto;
 }
 .c-colorDecision__colors {
+  position: absolute;
+  overflow-y: auto;
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
@@ -770,6 +771,21 @@ html, .c-login {
   padding: 16px 32px;
   margin: 16px;
   background-color: #ED2939;
+}
+.c-colorDecision__color:focus {
+  opacity: 0.5;
+}
+.c-colorDecision__sendbtn {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  bottom: 27vh;
+  right: 40%;
+  left: 40%;
+  padding: 16px 32px;
+  background-color: #AFDBF5;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .c-dropdown {
