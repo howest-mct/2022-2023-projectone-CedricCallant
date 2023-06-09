@@ -10,6 +10,7 @@ from helpers.simpleRfid import SimpleMFRC522Custom
 from helpers.Ledstrip_Class import Ledstrip
 from helpers.MPU_class import Mpu6050
 from helpers.MCP_class import Mcp
+from helpers.i2c_lcd import *
 import serial
 import json
 import urllib
@@ -54,7 +55,8 @@ accelero = Mpu6050(0x68)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(sound_detection, GPIO.IN)
 
-
+lcd = lcd()
+lcd.lcd_display_string('test')
 
 leds = Ledstrip() #Ledstrip class
 leds_on = True
@@ -62,6 +64,8 @@ led_mode= 'static'
 led_prev_mode = 'static'
 led_color = hex_to_dec(DataRepository.get_last_used_color(4,12)['Value'])
 lamp = False
+
+message_received = False
 
 
 def set_led_mode():
@@ -104,44 +108,54 @@ def all_out():
     time.sleep(10)
     # moment = time.time()
     while True:
-        try:
-            acc_state = accelero.read_data()['acc']
-            if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
-                if time.time() >= timer + 3:
-                    print('movement detected')
-                    DataRepository.add_to_history(11,11, acc_state['x'])
-                    lamp = not lamp
-                    print('lamp state changed')
-                    if lamp:
-                        DataRepository.add_to_history(12,9)
-                    else:
-                        DataRepository.add_to_history(12,10)
-                    timer = time.time()
-        except:
-            print('poeperror')
-        if GPIO.input(sound_detection):
-            print('clap detected')
-            leds_on = not leds_on
-            if leds_on:
-                    DataRepository.add_to_history(12,1)
-            else:
-                DataRepository.add_to_history(12,8)
-            print('led state changed')
-        # if time.time() >= moment + 60:
-        #     events = DataRepository.get_last_events(cubeid)
-        #     socketio.emit('B2F_ack_change', {'changes': events})
-        #     moment = time.time()
+        if not message_received:
+            try:
+                acc_state = accelero.read_data()['acc']
+                if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
+                    if time.time() >= timer + 3:
+                        print('movement detected')
+                        DataRepository.add_to_history(11,11, acc_state['x'])
+                        lamp = not lamp
+                        print('lamp state changed')
+                        if lamp:
+                            DataRepository.add_to_history(12,9)
+                        else:
+                            DataRepository.add_to_history(12,10)
+                        timer = time.time()
+            except:
+                print('poeperror')
+            if GPIO.input(sound_detection):
+                print('clap detected')
+                leds_on = not leds_on
+                if leds_on:
+                        DataRepository.add_to_history(12,1)
+                else:
+                    DataRepository.add_to_history(12,8)
+                print('led state changed')
+            # if time.time() >= moment + 60:
+            #     events = DataRepository.get_last_events(cubeid)
+            #     socketio.emit('B2F_ack_change', {'changes': events})
+            #     moment = time.time()
+        else:
+            if reader.read_id() == cubeid:
+                pass
 
 def led_thread():
+    global message_received
+    global led_mode
     time.sleep(11)
     while True:
-        if not lamp:
-            if leds_on:
-                set_led_mode()
+        if not message_received:
+            if not lamp:
+                if leds_on:
+                    set_led_mode()
+                else:
+                    leds.clear_leds()
             else:
-                leds.clear_leds()
+                leds.white_light('warm')
         else:
-            leds.white_light('warm')
+            led_mode = 'pulse'
+            set_led_mode()
 
 # lock = threading.Lock()
 def esp_thread():
@@ -348,6 +362,7 @@ def toggle_idle(jsonObject):
 
 @socketio.on('F2B_send_message')
 def receive_msg(jsonObject):
+    global message_received
     print(f"{jsonObject['id']} says {jsonObject['msg']} in color: {jsonObject['color']}")
     time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if jsonObject['id'] == cubeid:
@@ -355,6 +370,7 @@ def receive_msg(jsonObject):
     else:
         data = DataRepository.write_message(time,jsonObject['id'], cubeid,jsonObject['color'], jsonObject['msg'])
     if data != None:
+        message_received = True
         socketio.emit('B2F_new_message', {'msg': jsonObject, 'time': time})
     else:
         emit('B2F_message_error', {'error': 'Something went wrong when sending the message'})
