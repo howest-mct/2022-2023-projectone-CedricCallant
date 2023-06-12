@@ -76,28 +76,30 @@ const datalistevent = function (e) {
 }
 
 const showChosenColor = function (idk) {
+  console.info(idk)
   for (let c of colors) {
-    if (c.objectId == idk.getAttribute('data-obid')) {
+    if (c.Hexcode == idk.getAttribute('data-obid')) {
       document.querySelector('.js-dropdownNames').value = ''
-      document.querySelector('.js-dropdownNames').placeholder = c.name
+      document.querySelector('.js-dropdownNames').placeholder = c.Name
       document.querySelector('.js-dropdownHex').value = ''
-      document.querySelector('.js-dropdownHex').placeholder = c.hexCode
-      document.querySelector('.c-card-color__selector').style.backgroundColor = c.hexCode
-      document.querySelector('.c-dropdown').style.backgroundColor = c.hexCode
-      document.querySelector('.c-dropdown__small').style.backgroundColor = c.hexCode
-      socketio.emit('F2B_change_color', { 'id': cubeid, 'hexCode': c.hexCode })
+      document.querySelector('.js-dropdownHex').placeholder = c.Hexcode
+      document.querySelector('.c-card-color__selector').style.backgroundColor = c.Hexcode
+      document.querySelector('.c-dropdown').style.backgroundColor = c.Hexcode
+      document.querySelector('.c-dropdown__small').style.backgroundColor = c.Hexcode
+      socketio.emit('F2B_change_color', { 'id': cubeid, 'hexCode': c.Hexcode })
     }
   }
   showColors2()
 }
 
 const showColors = function (jsonObject) {
-  colors = jsonObject['results']
+  console.info(jsonObject)
+  colors = jsonObject
   let hexString = ''
   let nameString = ''
   for (let c of colors) {
-    hexString += `<option data-obid="${c.objectId}" value="${c.hexCode}">${c.hexCode}</option>`
-    nameString += `<option data-obid="${c.objectId}" value="${c.name} ">${c.name}</option>`
+    hexString += `<option data-obid="${c.Hexcode}" value="${c.Hexcode}">${c.Hexcode}</option>`
+    nameString += `<option data-obid="${c.Hexcode}" value="${c.Name} ">${c.Name}</option>`
   }
   document.querySelector('.js-ColorHex').innerHTML = hexString
   document.querySelector('.js-ColorNames').innerHTML = nameString
@@ -109,8 +111,8 @@ const showColors2 = function () {
   let hexString = ''
   let nameString = ''
   for (let c of colors) {
-    hexString += `<option data-obid="${c.objectId}" value="${c.hexCode}">${c.hexCode}</option>`
-    nameString += `<option data-obid="${c.objectId}" value="${c.name} ">${c.name}</option>`
+    hexString += `<option data-obid="${c.Hexcode}" value="${c.Hexcode}">${c.Hexcode}</option>`
+    nameString += `<option data-obid="${c.Hexcode}" value="${c.Name} ">${c.Name}</option>`
   }
   document.querySelector('.js-ColorHex').innerHTML = hexString
   document.querySelector('.js-ColorNames').innerHTML = nameString
@@ -145,7 +147,6 @@ const showChats = function (jsonObject) {
   chats = jsonObject['chats']
   htmlString = ''
   for (let c of chats) {
-    console.info(c.Hexcode)
     htmlString += `
     <div class="c-message ${checkSender(c.SenderCubeId)}">
     <!-- <div class="c-message__sender">testuser</div> -->
@@ -213,11 +214,11 @@ const listenToUI = function () {
         document.querySelector('.js-colorPicker').style.display = 'none'
       })
       for (let c of document.querySelectorAll('.js-colorbtn')) {
-        console.info(c)
         c.addEventListener('click', function () {
           console.info(this)
           let searchCol = 'other';
           let htmlString = ''
+          console.info(c.innerHTML)
           if (c.innerHTML == 'Happy') {
             searchCol = 'yellow'
           } else if (c.innerHTML == 'Sad') {
@@ -231,15 +232,15 @@ const listenToUI = function () {
           }
           document.querySelector('.js-colorDecision').style.display = 'initial';
           if (searchCol != 'other') {
-            for (let col of colors['results']) {
-              if (col['name'].toLowerCase().includes(searchCol)) {
-                htmlString += `<button class="js-colorDecision-color c-colorDecision__color o-button-reset" data-hexcode="${col.hexCode}">${col.name}</button>`
+            for (let col of colors) {
+              if (col['Name'].toLowerCase().includes(searchCol)) {
+                htmlString += `<button class="js-colorDecision-color c-colorDecision__color o-button-reset" data-hexcode="${col.Hexcode}">${col.Name}</button>`
               }
             }
           } else {
-            for (let col of colors['results']) {
-              if (!col['name'].toLowerCase().includes('yellow') && !col['name'].toLowerCase().includes('blue') && !col['name'].toLowerCase().includes('red') && !col['name'].toLowerCase().includes('green') && !col['name'].toLowerCase().includes('purple')) {
-                htmlString += `<button class="js-colorDecision-color c-colorDecision__color o-button-reset" data-hexcode="${col.hexCode}">${col.name}</button>`
+            for (let col of colors) {
+              if (!col['Name'].toLowerCase().includes('yellow') && !col['Name'].toLowerCase().includes('blue') && !col['Name'].toLowerCase().includes('red') && !col['Name'].toLowerCase().includes('green') && !col['Name'].toLowerCase().includes('purple')) {
+                htmlString += `<button class="js-colorDecision-color c-colorDecision__color o-button-reset" data-hexcode="${col.Hexcode}">${col.Name}</button>`
               }
             }
           }
@@ -249,16 +250,18 @@ const listenToUI = function () {
             cd.style.backgroundColor = `${cd.getAttribute('data-hexcode')}`
             cd.addEventListener('click', function () {
               chosenColor = cd.getAttribute('data-hexcode')
+              console.info(chosenColor)
               document.querySelector('.js-sendbtn').style.display = 'initial'
             })
           }
-
           document.querySelector('.js-sendbtn').addEventListener('click', function () {
             document.querySelector('.js-sendbtn').style.display = 'none'
-            document.querySelector('.js-colorPicker').style.display = 'none';
+            document.querySelector('.js-colorPicker').style.display = 'none'
             document.querySelector('.js-colorDecision').style.display = 'none'
-            // let dates = new Date().toLocaleString('fr-BE',{hour12: false})
-            socketio.emit('F2B_send_message', { 'id': cubeid, 'msg': text, 'color': chosenColor})
+            console.info(chosenColor)
+            if (chosenColor != null) {
+              socketio.emit('F2B_send_message', { 'id': cubeid, 'msg': text, 'color': chosenColor })
+            }
           })
         })
       }
@@ -315,14 +318,14 @@ const listenToSocket = function () {
   } else if (document.querySelector('.js-home')) {
     socketio.on('B2F_curr_color', function (hexvalue) {
       for (let c of colors) {
-        if (hexvalue['hex'] == c.hexCode) {
+        if (hexvalue['hex'] == c.Hexcode) {
           document.querySelector('.js-dropdownNames').value = ''
-          document.querySelector('.js-dropdownNames').placeholder = c.name
+          document.querySelector('.js-dropdownNames').placeholder = c.Name
           document.querySelector('.js-dropdownHex').value = ''
-          document.querySelector('.js-dropdownHex').placeholder = c.hexCode
-          document.querySelector('.c-card-color__selector').style.backgroundColor = c.hexCode
-          document.querySelector('.c-dropdown').style.backgroundColor = c.hexCode
-          document.querySelector('.c-dropdown__small').style.backgroundColor = c.hexCode
+          document.querySelector('.js-dropdownHex').placeholder = c.Hexcode
+          document.querySelector('.c-card-color__selector').style.backgroundColor = c.Hexcode
+          document.querySelector('.c-dropdown').style.backgroundColor = c.Hexcode
+          document.querySelector('.c-dropdown__small').style.backgroundColor = c.Hexcode
         }
       }
     });
@@ -365,15 +368,15 @@ const listenToSocket = function () {
       <div class="js-bubbles c-message__bubble" data-bcolor="${chats.color}">
         <p class="c-message_text u-mb-clear">${chats.msg}</p>
       </div>
-      <div class="c-message__time">${jsonObject['time'].substring(11, jsonObject['time'].length-3)}</div>
+      <div class="c-message__time">${jsonObject['time'].substring(11, jsonObject['time'].length - 3)}</div>
     </div>
   </div>`
       document.querySelector('.js-messages').innerHTML += htmlString;
-    for (let b of document.querySelectorAll('.js-bubbles')) {
-      b.style.boxShadow = `0px 4px 8px rgba(${hexToRgb(b.getAttribute('data-bcolor'))['r']},${hexToRgb(b.getAttribute('data-bcolor'))['g']},${hexToRgb(b.getAttribute('data-bcolor'))['b']},0.5)`
-    }
-  })
-}
+      for (let b of document.querySelectorAll('.js-bubbles')) {
+        b.style.boxShadow = `0px 4px 8px rgba(${hexToRgb(b.getAttribute('data-bcolor'))['r']},${hexToRgb(b.getAttribute('data-bcolor'))['g']},${hexToRgb(b.getAttribute('data-bcolor'))['b']},0.5)`
+      }
+    })
+  }
 };
 
 const init = function () {

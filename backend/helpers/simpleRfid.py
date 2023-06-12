@@ -96,4 +96,3 @@ class SimpleMFRC522Custom:
     deez = (hex(uid[0])[2:].zfill(2)) + (hex(uid[1])[2:].zfill(2)) + (hex(uid[2])[2:].zfill(2)) + (hex(uid[3])[2:].zfill(2))
     return deez.upper()
     # return n
-
