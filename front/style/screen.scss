@@ -792,7 +792,7 @@ html, .c-login{
   }
 
   &__chatbar{
-    width: calc(90% - 100px);
+    width: calc(100% - 60px);
     height: 48px;
     border-radius: 15px;
     border: $color-border solid 1px;
@@ -813,6 +813,7 @@ html, .c-login{
   &__send{
     height: 32px;
   }
+
 }
 
 .c-message{
@@ -849,6 +850,138 @@ html, .c-login{
     color: $color-text-lighter;
   }
 }
+
+.c-colorPicker{
+  position: fixed;
+  display: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  z-index: 2;
+  cursor: pointer;
+
+  &__card{
+    padding: 32px;
+    background-color: $color-text-light;
+    border-radius: 15px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 50%;
+    height: 50%;
+  }
+
+  &__head{
+    text-align: center;
+    font-size: 27px;
+  }
+
+  &__emotions{
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  &__emotion{
+    border-radius: 15px;
+    flex: 30%;
+    padding: 16px 32px;
+    margin: 16px;
+
+    &:hover{
+      color: white;
+    }
+    &--happy{
+      &:hover{
+        background-color: #FFC40C;
+      }
+    }
+
+    &--sad{
+      &:hover{
+        background-color: #0070FF;
+      }
+    }
+    &--anger{
+      &:hover{
+        background-color: #ED2939;
+      }
+    }
+    &--disgust{
+      &:hover{
+        background-color: #03C03C;
+      }
+    }
+    &--fear{
+      &:hover{
+        background-color: #8F00FF;
+      }
+    }
+    &--other{
+      &:hover{
+        background-color: #AA98A9;
+      }
+    }
+  }
+}
+
+.c-colorDecision{
+  display: none;
+  padding: 32px;
+  background-color: $color-text-light;
+  border-radius: 15px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 50%;
+  height: 50%;
+  overflow-y: auto;
+
+
+  &__colors{
+    position: absolute;
+    overflow-y: auto;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__color{
+    border-radius: 15px;
+    flex: 30%;
+    padding: 16px 32px;
+    margin: 16px;
+    background-color: #ED2939;
+
+    &:focus{
+      opacity: 0.5;
+    }
+  }
+
+  &__sendbtn{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    bottom: 27vh;
+    right: 40%;
+    left: 40%;
+    padding: 16px 32px;
+    background-color: $color-primary;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba($color: #000000, $alpha: 0.3);
+  }
+}
+
 
 .c-dropdown{
   width: 100%;

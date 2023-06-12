@@ -1,5 +1,7 @@
 import threading
 import time
+from datetime import datetime
+from subprocess import check_output
 from repositories.DataRepository import DataRepository
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, emit
@@ -8,19 +10,9 @@ from RPi import GPIO
 from helpers.simpleRfid import SimpleMFRC522Custom
 from helpers.Ledstrip_Class import Ledstrip
 from helpers.MPU_class import Mpu6050
-from helpers.MCP_class import Mcp
+from helpers.i2c_lcd import *
 import serial
-import json
-import urllib
-import requests
 
-url = 'https://parseapi.back4app.com/classes/Color?limit=1000&order=name&keys=name,hexCode,redDecimal,greenDecimal,blueDecimal'
-headers = {
-    'X-Parse-Application-Id': 'vei5uu7QWv5PsN3vS33pfc7MPeOPeZkrOcP24yNX', # This is the fake app's application id
-    'X-Parse-Master-Key': 'aImLE6lX86EFpea2nDjq9123qJnG0hxke416U7Je' # This is the fake app's readonly master key
-}
-help = json.loads(requests.get(url, headers=headers).content.decode('utf-8')) # Here you have the data that you need
-color_json = json.dumps(help, indent=2)
 
 def hex_to_dec(value):
     h = value[1:7]
@@ -31,7 +23,6 @@ ser = serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=1)  # open serial por
 print(ser.name)       # check which port was really used 
 stop_polling = 0
 
-# print(color_json)
 
 def rgb_to_hex(r, g, b):
     return '#{:02x}{:02x}{:02x}'.format(r, g, b)
@@ -46,6 +37,8 @@ cubeid = '29F0889C'
 sound_detection = 21
 idle_mode = get_idle_mode(DataRepository.get_last_idle_state(1,8,12))
 last_known_event = DataRepository.get_last_events(cubeid)
+scanned_id = ''
+readrfid = False
 
 # TODO: GPIO
 reader = SimpleMFRC522Custom() #RFID reader object
@@ -53,37 +46,45 @@ accelero = Mpu6050(0x68)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(sound_detection, GPIO.IN)
 
+started = 0
+
+lcd = lcd()
 
 
 leds = Ledstrip() #Ledstrip class
+leds_on = True
 led_mode= 'static'
 led_prev_mode = 'static'
 led_color = hex_to_dec(DataRepository.get_last_used_color(4,12)['Value'])
 lamp = False
 
+messages = []
+display_msg_color = False
+message_received = False
 
-def set_led_mode():
-    global led_mode
+
+def set_led_mode(led_mode = led_mode):
     global led_prev_mode
     if led_mode == 'static':
         leds.set_Brightness(1)
         leds.static(led_color)
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
+            print('ledmode set to static')
             return DataRepository.add_to_history(12,6)
     elif led_mode == 'pulse':
         leds.pulse(led_color)
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
+            print('ledmode set to pulse')
             return DataRepository.add_to_history(12,5)
     elif led_mode == 'wave':
         leds.set_Brightness(1)
         leds.wave(led_color)
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
+            print('ledmode set to wave')
             return DataRepository.add_to_history(12,7)
-    elif led_mode == 'sound':
-        pass
 
 
 app = Flask(__name__)
@@ -98,44 +99,100 @@ CORS(app)
 # werk enkel met de packages gevent en gevent-websocket.
 def all_out():
     global lamp
+    global leds_on
+    global message_received
+    global messages
+    global display_msg_color
+    global started
+    global ip_displayed
+    global scanned_id
     timer = time.time()
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
     # moment = time.time()
+    started =1
+    ip_displayed = 0
     while True:
-        acc_state = accelero.read_data()['acc']
-        if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
-            if time.time() >= timer + 3:
-                DataRepository.add_to_history(11,11, acc_state['x'])
-                lamp = not lamp
-                print('lamp status veranderd')
-                if lamp:
-                    DataRepository.add_to_history(12,9)
+        if not message_received:
+            if not ip_displayed:
+                ips = str(check_output(['hostname', '--all-ip-addresses']))
+                adresses = ips.split(" ")
+                lcd.lcd_display_string(adresses[1])
+                ip_displayed = 1
+            try:
+                acc_state = accelero.read_data()['acc']
+                if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
+                    if time.time() >= timer + 3:
+                        print('movement detected')
+                        DataRepository.add_to_history(11,11, acc_state['x'])
+                        lamp = not lamp
+                        print('lamp state changed')
+                        if lamp:
+                            DataRepository.add_to_history(12,9)
+                        else:
+                            DataRepository.add_to_history(12,10)
+                        timer = time.time()
+            except:
+                pass
+            if readrfid:
+                scanned_id = reader.read_id()
+                print(scanned_id)
+            if GPIO.input(sound_detection):
+                print('clap detected')
+                leds_on = not leds_on
+                if leds_on:
+                        DataRepository.add_to_history(12,1)
                 else:
-                    DataRepository.add_to_history(12,10)
-                timer = time.time()
-        if GPIO.input(sound_detection):
-            lamp = not lamp
-            if lamp:
-                    DataRepository.add_to_history(12,9)
-            else:
-                DataRepository.add_to_history(12,10)
-            print('lamp status veranderd')
-        # if time.time() >= moment + 60:
-        #     events = DataRepository.get_last_events(cubeid)
-        #     socketio.emit('B2F_ack_change', {'changes': events})
-        #     moment = time.time()
+                    DataRepository.add_to_history(12,8)
+                print('led state changed')
+            # if time.time() >= moment + 60:
+            #     events = DataRepository.get_last_events(cubeid)
+            #     socketio.emit('B2F_ack_change', {'changes': events})
+            #     moment = time.time()
+        else:
+            lcd.lcd_clear()
+            msg_info = f'You received {len(messages)} messages'
+            lcd.lcd_display_string(string=msg_info[0:16])
+            lcd.lcd_display_string(msg_info[16:len(msg_info)],2)
+            cardid = reader.read_id()
+            if cardid == cubeid:
+                if len(messages) == 1:
+                    lcd.lcd_clear()
+                    message_timer = time.time()
+                    display_msg_color = True
+                    while message_timer + 60 >= time.time():
+                        lcd.lcd_display_string(messages[0]['message'][0:16])
+                        lcd.lcd_display_string(messages[0]['message'][16:len(messages[0]['message'])], 2)
+                    display_msg_color = False
+                    lcd.lcd_clear()
+                message_received = 0
+                ip_displayed = 0
 
 def led_thread():
-    time.sleep(11)
+    global message_received
+    global display_msg_color
+    global led_mode
+    global led_color
+    global started
+    time.sleep(1)
     while True:
-        if not lamp:
-            if idle_mode:
-                set_led_mode()
+        if not message_received:
+            if not lamp:
+                if leds_on:
+                    set_led_mode()
+                else:
+                    leds.clear_leds()
             else:
-                leds.clear_leds()
+                leds.white_light('warm')
         else:
-            leds.white_light('warm')
+            if not display_msg_color:
+                set_led_mode('pulse')
+            else:
+                prev_ledcolor = led_color
+                led_color = hex_to_dec(messages[0]['color'])
+                while display_msg_color:
+                    set_led_mode('static')
+                led_color = prev_ledcolor
 
 # lock = threading.Lock()
 def esp_thread():
@@ -155,7 +212,7 @@ def esp_thread():
         
         if(not stop_polling):
             info = ser.readline().decode()
-            print(info)
+            # print(info)
             if info == "":
                 pass
             elif info[0:3] == 'mpu':
@@ -195,6 +252,8 @@ def esp_thread():
                 pass
 
 def start_thread():
+    global started
+    global ip_displayed
     # threading.Timer(10, all_out).start()
     t = threading.Thread(target=all_out, daemon=True)
     l = threading.Thread(target=led_thread, daemon=True)
@@ -202,8 +261,19 @@ def start_thread():
     l.start()
     t.start()
     e.start()
+    while not started:
+        lcd.lcd_display_string('Starting')
+        time.sleep(0.5)
+        lcd.lcd_display_string('.', 1,8)
+        time.sleep(0.5)
+        lcd.lcd_display_string('.', 1,9)
+        time.sleep(0.5)
+        lcd.lcd_display_string('.', 1,10)
+        time.sleep(0.5)
+        lcd.lcd_display_string('   ',1,8)
+    lcd.lcd_clear()
+    ip_displayed = 0
     print("threads started")
-
 
 # API ENDPOINTS
 @app.route('/')
@@ -222,7 +292,7 @@ def login():
         
 @app.route('/color/')
 def get_colors():
-    return color_json, 200
+    return DataRepository.get_all_colors(), 200
 
 @app.route('/chats/')
 def get_chats():
@@ -259,16 +329,22 @@ def initialise_baseinfo(jsonObject):
         emit('B2F_curr_color', {'hex': DataRepository.get_last_used_color(4,16)['Value']})
         # emit('B2F_toggled', {'mode': idle_mode})
 
-@socketio.on('F2B_read_tag') #Make sure the Serial.println on line 148 is disabled in the esp32 code 
+@socketio.on('F2B_read_tag') #Make sure the Serial.println on line 148 is disabled in the esp32 code
 def read_tag(jsonObject):
+    global scanned_id
     global stop_polling
     global cubeid
+    global readrfid
     print(jsonObject)
     if jsonObject['id'] == cubeid:
         print('Reading the tag...')
-        id = reader.read_id()
-        if id == jsonObject['id']:
-            emit('B2F_login_succes', {'cubeid': id})
+        readrfid = 1
+        while scanned_id == '':
+
+            time.sleep(0.1)
+        if scanned_id == jsonObject['id']:
+            emit('B2F_login_succes', {'cubeid': scanned_id})
+            scanned_id = ''
         else:
             emit('B2F_login_failed', {'error': 'Username and id do not match tag id, please try the right tag or a different username'})
     else:
@@ -276,7 +352,7 @@ def read_tag(jsonObject):
         ser.write('da:rfid'.encode())
         ser.timeout = 5
         auth = ser.readline().decode()
-        print(auth)
+        print(auth, " ok")
         print(auth[0:len(auth)-2])
         print(jsonObject['id'])
         stop_polling = 0
@@ -295,10 +371,13 @@ def change_mode(jsonObject):
     print(jsonObject)
     if jsonObject['id'] == cubeid:
         led_mode = jsonObject['new_mode']
+        device = 12
     else:
         stop_polling = 1
         ser.write(("da:idle " + jsonObject['new_mode']).encode())
         stop_polling = 0
+        device = 16
+    DataRepository.add_to_history(device,7,jsonObject['new_mode'])
 
 @socketio.on('F2B_change_color')
 def change_color(jsonObject):
@@ -317,16 +396,16 @@ def change_color(jsonObject):
 
 @socketio.on('F2B_toggle_idle')
 def toggle_idle(jsonObject):
-    global idle_mode
+    global leds_on
     global stop_polling
     if jsonObject['id'] == cubeid:
         if jsonObject['state'] == 'Turn OFF':
-            idle_mode = False
+            leds_on = False
             help_mode = False
             DataRepository.add_to_history(12,8)
             print('Leds turned OFF')
         elif jsonObject['state'] == 'Turn ON':
-            idle_mode = True
+            leds_on = True
             help_mode = True
             DataRepository.add_to_history(12,1) 
             print('Leds turned ON')
@@ -341,6 +420,35 @@ def toggle_idle(jsonObject):
             DataRepository.add_to_history(16,1)
     emit('B2F_toggled', {'mode': help_mode})
 
+@socketio.on('F2B_send_message')
+def receive_msg(jsonObject):
+    global message_received
+    global stop_polling
+    print(jsonObject)
+    print(f"{jsonObject['id']} says {jsonObject['msg']} in color: {jsonObject['color']}")
+    timer = str(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    if jsonObject['id'] == cubeid:
+        data = DataRepository.write_message(timer,jsonObject['id'], 'E34F0FE7',jsonObject['color'], jsonObject['msg'])
+        if data != None:
+            socketio.emit('B2F_new_message', {'msg': jsonObject, 'time': timer})
+            stop_polling = 1
+            ser.write(f"da:msgt {jsonObject['msg']}".encode())
+            time.sleep(1)
+            ser.write(f"da:msgc {hex_to_dec(jsonObject['color'])}".encode())
+            # messages.append({'message': jsonObject['msg'], 'color': jsonObject['color']})
+            stop_polling = 0
+            
+        else:
+            emit('B2F_message_error', {'error': 'Something went wrong when sending the message'})
+    else:
+        data = DataRepository.write_message(timer,jsonObject['id'], cubeid,jsonObject['color'], jsonObject['msg'])
+        if data != None:
+            socketio.emit('B2F_new_message', {'msg': jsonObject, 'time': timer})
+            messages.append({'message': jsonObject['msg'], 'color': jsonObject['color']})
+            message_received = True
+        else:
+            emit('B2F_message_error', {'error': 'Something went wrong when sending the message'})
+    
 
 
 if __name__ == '__main__':

@@ -38,10 +38,9 @@ class DataRepository:
         params = [cubeid]
         return Database.get_rows(sql,params)
     
-    def zet_alle_kleuren_in_db(hexcode,name):
-        sql = 'INSERT INTO Color(Hexcode, Name) VALUES (%s, %s)'
-        params = [hexcode, name]
-        return Database.execute_sql(sql,params)
+    def get_all_colors():
+        sql = 'SELECT * FROM Color'
+        return Database.get_rows(sql)
     
     def get_most_used_colors(cubedevice):
         sql = 'SELECT value, count(*) as `times used` fROM History where CubeDeviceId = %s and value is not NULL group by value order by `times used` desc limit 10'
@@ -51,4 +50,9 @@ class DataRepository:
     def get_messages():
         sql = 'SELECT * FROM ChatMessage'
         return Database.get_rows(sql)
+    
+    def write_message(time, senderid, receiverid, hexcode, message):
+        sql = 'insert into ChatMessage (Tijdstip, SenderCubeId, ReceiverCubeId, HexCode,Message) VALUES (%s,%s,%s, %s, %s)'
+        params = [time, senderid, receiverid, hexcode, message]
+        return Database.execute_sql(sql, params)
 

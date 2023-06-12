@@ -25,14 +25,10 @@ const cleanupValue = function (value) {
   }
 }
 
-const checkSender = function(userid){
-  console.info(cubeid)
-  console.info(userid)
-  if(userid == cubeid){
-    console.info('yes')
+const checkSender = function (userid) {
+  if (userid == cubeid) {
     return `c-message--own`
-  }else{
-    console.info('nes')
+  } else {
     return ``
   }
 }
@@ -41,6 +37,19 @@ const showRFID = function (jsonObject) {
   console.info(jsonObject)
   document.querySelector('.js-login').innerHTML = 'Hold the tag in front of your cube'
   socketio.emit('F2B_read_tag', { id: jsonObject['CubeId'] })
+}
+
+const hexToRgb = function (hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+const saveColor = function (jsonObject) {
+  colors = jsonObject
 }
 
 const showloginError = function (err) {
@@ -67,28 +76,30 @@ const datalistevent = function (e) {
 }
 
 const showChosenColor = function (idk) {
+  console.info(idk)
   for (let c of colors) {
-    if (c.objectId == idk.getAttribute('data-obid')) {
+    if (c.Hexcode == idk.getAttribute('data-obid')) {
       document.querySelector('.js-dropdownNames').value = ''
-      document.querySelector('.js-dropdownNames').placeholder = c.name
+      document.querySelector('.js-dropdownNames').placeholder = c.Name
       document.querySelector('.js-dropdownHex').value = ''
-      document.querySelector('.js-dropdownHex').placeholder = c.hexCode
-      document.querySelector('.c-card-color__selector').style.backgroundColor = c.hexCode
-      document.querySelector('.c-dropdown').style.backgroundColor = c.hexCode
-      document.querySelector('.c-dropdown__small').style.backgroundColor = c.hexCode
-      socketio.emit('F2B_change_color', { 'id': cubeid, 'hexCode': c.hexCode })
+      document.querySelector('.js-dropdownHex').placeholder = c.Hexcode
+      document.querySelector('.c-card-color__selector').style.backgroundColor = c.Hexcode
+      document.querySelector('.c-dropdown').style.backgroundColor = c.Hexcode
+      document.querySelector('.c-dropdown__small').style.backgroundColor = c.Hexcode
+      socketio.emit('F2B_change_color', { 'id': cubeid, 'hexCode': c.Hexcode })
     }
   }
   showColors2()
 }
 
 const showColors = function (jsonObject) {
-  colors = jsonObject['results']
+  console.info(jsonObject)
+  colors = jsonObject
   let hexString = ''
   let nameString = ''
   for (let c of colors) {
-    hexString += `<option data-obid="${c.objectId}" value="${c.hexCode}">${c.hexCode}</option>`
-    nameString += `<option data-obid="${c.objectId}" value="${c.name} ">${c.name}</option>`
+    hexString += `<option data-obid="${c.Hexcode}" value="${c.Hexcode}">${c.Hexcode}</option>`
+    nameString += `<option data-obid="${c.Hexcode}" value="${c.Name} ">${c.Name}</option>`
   }
   document.querySelector('.js-ColorHex').innerHTML = hexString
   document.querySelector('.js-ColorNames').innerHTML = nameString
@@ -100,8 +111,8 @@ const showColors2 = function () {
   let hexString = ''
   let nameString = ''
   for (let c of colors) {
-    hexString += `<option data-obid="${c.objectId}" value="${c.hexCode}">${c.hexCode}</option>`
-    nameString += `<option data-obid="${c.objectId}" value="${c.name} ">${c.name}</option>`
+    hexString += `<option data-obid="${c.Hexcode}" value="${c.Hexcode}">${c.Hexcode}</option>`
+    nameString += `<option data-obid="${c.Hexcode}" value="${c.Name} ">${c.Name}</option>`
   }
   document.querySelector('.js-ColorHex').innerHTML = hexString
   document.querySelector('.js-ColorNames').innerHTML = nameString
@@ -131,23 +142,27 @@ const showHistory = function (jsonObject) {
   document.querySelector('.js-table').innerHTML = htmlString
 }
 
-const showChats = function(jsonObject){
+const showChats = function (jsonObject) {
   console.info(jsonObject)
-  chats =jsonObject['chats']
+  chats = jsonObject['chats']
   htmlString = ''
-  for(let c of chats){
+  for (let c of chats) {
     htmlString += `
     <div class="c-message ${checkSender(c.SenderCubeId)}">
     <!-- <div class="c-message__sender">testuser</div> -->
     <div class="message_content">
-      <div class="c-message__bubble">
+      <div class="js-bubbles c-message__bubble" data-bcolor="${c.Hexcode}">
         <p class="c-message_text u-mb-clear">${c.Message}</p>
       </div>
-      <div class="c-message__time">${c.Tijdstip.substring(c.Tijdstip.length-12, c.Tijdstip.length-7)}</div>
+      <div class="c-message__time">${c.Tijdstip.substring(c.Tijdstip.length - 12, c.Tijdstip.length - 7)}</div>
     </div>
   </div>`
   }
   document.querySelector('.js-messages').innerHTML = htmlString;
+  for (let b of document.querySelectorAll('.js-bubbles')) {
+    b.style.boxShadow = `0px 4px 8px rgba(${hexToRgb(b.getAttribute('data-bcolor'))['r']},${hexToRgb(b.getAttribute('data-bcolor'))['g']},${hexToRgb(b.getAttribute('data-bcolor'))['b']},0.5)`
+  }
+
 }
 
 const toggleIdle = function () {
@@ -182,6 +197,78 @@ const listenToUI = function () {
     document.querySelector('.js-dropdownNames').addEventListener('input', datalistevent)
     document.querySelector('.js-idlebtn').addEventListener('click', toggleIdle)
     document.querySelector('.js-idlebtn').addEventListener('touchstart', toggleIdle)
+  } else if (document.querySelector('.js-chat')) {
+    document.querySelector('.js-chatbar').addEventListener('input', function () {
+      if (this.value.length > 32) {
+        this.style.backgroundColor = '#FF0000'
+        document.querySelector('.js-send_btn').disabled = true
+      } else {
+        this.style.backgroundColor = '#FFFFFF'
+        document.querySelector('.js-send_btn').disabled = false
+      }
+    })
+    document.querySelector('.js-send_btn').addEventListener('click', function () {
+      let text = document.querySelector('.js-chatbar').value
+      document.querySelector('.js-colorPicker').style.display = 'initial';
+      document.querySelector('.js-colorPickerClose').addEventListener('click', function () {
+        document.querySelector('.js-colorPicker').style.display = 'none'
+      })
+      for (let c of document.querySelectorAll('.js-colorbtn')) {
+        c.addEventListener('click', function () {
+          console.info(this)
+          let searchCol = 'other';
+          let htmlString = ''
+          console.info(c.innerHTML)
+          if (c.innerHTML == 'Happy') {
+            searchCol = 'yellow'
+          } else if (c.innerHTML == 'Sad') {
+            searchCol = 'blue'
+          } else if (c.innerHTML == 'Disgust') {
+            searchCol = 'green'
+          } else if (c.innerHTML == 'Anger') {
+            searchCol = 'red'
+          } else if (c.innerHTML == 'Fear') {
+            searchCol = 'purple'
+          }
+          document.querySelector('.js-colorDecision').style.display = 'initial';
+          if (searchCol != 'other') {
+            for (let col of colors) {
+              if (col['Name'].toLowerCase().includes(searchCol)) {
+                htmlString += `<button class="js-colorDecision-color c-colorDecision__color o-button-reset" data-hexcode="${col.Hexcode}">${col.Name}</button>`
+              }
+            }
+          } else {
+            for (let col of colors) {
+              if (!col['Name'].toLowerCase().includes('yellow') && !col['Name'].toLowerCase().includes('blue') && !col['Name'].toLowerCase().includes('red') && !col['Name'].toLowerCase().includes('green') && !col['Name'].toLowerCase().includes('purple')) {
+                htmlString += `<button class="js-colorDecision-color c-colorDecision__color o-button-reset" data-hexcode="${col.Hexcode}">${col.Name}</button>`
+              }
+            }
+          }
+          document.querySelector('.js-color-colorname').innerHTML = htmlString;
+          let chosenColor;
+          for (let cd of document.querySelectorAll('.js-colorDecision-color')) {
+            cd.style.backgroundColor = `${cd.getAttribute('data-hexcode')}`
+            cd.addEventListener('click', function () {
+              chosenColor = cd.getAttribute('data-hexcode')
+              console.info(chosenColor)
+              document.querySelector('.js-sendbtn').style.display = 'initial'
+            })
+          }
+          document.querySelector('.js-sendbtn').addEventListener('click', function () {
+            document.querySelector('.js-sendbtn').style.display = 'none'
+            document.querySelector('.js-colorPicker').style.display = 'none'
+            document.querySelector('.js-colorDecision').style.display = 'none'
+            console.info(chosenColor)
+            if (chosenColor != null) {
+              socketio.emit('F2B_send_message', { 'id': cubeid, 'msg': text, 'color': chosenColor })
+            }
+          })
+        })
+      }
+    })
+    document.querySelector('.js-colorDecision__back').addEventListener('click', function () {
+      document.querySelector('.js-colorDecision').style.display = 'none'
+    })
   }
   if (!document.querySelector('.js-login')) {
     document.querySelector('.js-nav__home').addEventListener('click', function () {
@@ -231,14 +318,14 @@ const listenToSocket = function () {
   } else if (document.querySelector('.js-home')) {
     socketio.on('B2F_curr_color', function (hexvalue) {
       for (let c of colors) {
-        if (hexvalue['hex'] == c.hexCode) {
+        if (hexvalue['hex'] == c.Hexcode) {
           document.querySelector('.js-dropdownNames').value = ''
-          document.querySelector('.js-dropdownNames').placeholder = c.name
+          document.querySelector('.js-dropdownNames').placeholder = c.Name
           document.querySelector('.js-dropdownHex').value = ''
-          document.querySelector('.js-dropdownHex').placeholder = c.hexCode
-          document.querySelector('.c-card-color__selector').style.backgroundColor = c.hexCode
-          document.querySelector('.c-dropdown').style.backgroundColor = c.hexCode
-          document.querySelector('.c-dropdown__small').style.backgroundColor = c.hexCode
+          document.querySelector('.js-dropdownHex').placeholder = c.Hexcode
+          document.querySelector('.c-card-color__selector').style.backgroundColor = c.Hexcode
+          document.querySelector('.c-dropdown').style.backgroundColor = c.Hexcode
+          document.querySelector('.c-dropdown__small').style.backgroundColor = c.Hexcode
         }
       }
     });
@@ -269,6 +356,26 @@ const listenToSocket = function () {
       }
       document.querySelector('.js-table').innerHTML = htmlString
     })
+  } else if (document.querySelector('.js-chat')) {
+    socketio.on('B2F_new_message', function (jsonObject) {
+      console.info(jsonObject['time'])
+      chats = jsonObject['msg']
+      htmlString = ''
+      htmlString += `
+    <div class="c-message ${checkSender(chats['id'])}">
+    <!-- <div class="c-message__sender">testuser</div> -->
+    <div class="message_content">
+      <div class="js-bubbles c-message__bubble" data-bcolor="${chats.color}">
+        <p class="c-message_text u-mb-clear">${chats.msg}</p>
+      </div>
+      <div class="c-message__time">${jsonObject['time'].substring(11, jsonObject['time'].length - 3)}</div>
+    </div>
+  </div>`
+      document.querySelector('.js-messages').innerHTML += htmlString;
+      for (let b of document.querySelectorAll('.js-bubbles')) {
+        b.style.boxShadow = `0px 4px 8px rgba(${hexToRgb(b.getAttribute('data-bcolor'))['r']},${hexToRgb(b.getAttribute('data-bcolor'))['g']},${hexToRgb(b.getAttribute('data-bcolor'))['b']},0.5)`
+      }
+    })
   }
 };
 
@@ -290,6 +397,7 @@ const init = function () {
       window.location.href = 'inlog.html'
     } else {
       cubeid = urlparams.get('userid')
+      handleData(`http://${window.location.hostname}:5000/color/`, saveColor, showError)
       handleData(`http://${window.location.hostname}:5000/chats/`, showChats, showError)
     }
   }

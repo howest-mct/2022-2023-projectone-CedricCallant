@@ -72,13 +72,12 @@
       <h2 class="u-mb-clear">Chat</h2>
     </div>
     <div class="c-card-chat">
-      <div class="c-cadr-chat__options">
-        <input class="c-card-chat__chatbar" type="text" name="typebar" id="typebar" placeholder="Type your message here...">
-        <div class="c-card-chat__cselector">
-          Current Color:
-        </div>
-        <button class="c-card-chat__send o-button-reset">
-          <svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M 3.59375 5.34375 L 4.03125 7.21875 L 5.96875 16 L 4.03125 24.78125 L 3.59375 26.65625 L 5.375 25.9375 L 27.375 16.9375 L 29.65625 16 L 27.375 15.0625 L 5.375 6.0625 Z M 6.375 8.65625 L 21.90625 15 L 7.78125 15 Z M 7.78125 17 L 21.90625 17 L 6.375 23.34375 Z"/></svg>
+      <div class="c-card-chat__options">
+        <input class="js-chatbar c-card-chat__chatbar" type="text" name="typebar" id="typebar" placeholder="Type your message here...">
+        <button class="js-send_btn c-card-chat__send o-button-reset">
+          <svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <path class="c-card-chat__sendbtn" d="M 3.59375 5.34375 L 4.03125 7.21875 L 5.96875 16 L 4.03125 24.78125 L 3.59375 26.65625 L 5.375 25.9375 L 27.375 16.9375 L 29.65625 16 L 27.375 15.0625 L 5.375 6.0625 Z M 6.375 8.65625 L 21.90625 15 L 7.78125 15 Z M 7.78125 17 L 21.90625 17 L 6.375 23.34375 Z" />
+          </svg>
         </button>
       </div>
       <div class="js-messages c-card-chat__messages">
@@ -117,7 +116,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message c-message--own">
+        </div>
+        <div class="c-message c-message--own">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -125,7 +125,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message c-message--own">
+        </div>
+        <div class="c-message c-message--own">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -133,7 +134,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message c-message--own">
+        </div>
+        <div class="c-message c-message--own">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -141,7 +143,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message c-message--own">
+        </div>
+        <div class="c-message c-message--own">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -149,7 +152,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message c-message--own">
+        </div>
+        <div class="c-message c-message--own">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -157,7 +161,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message c-message--own">
+        </div>
+        <div class="c-message c-message--own">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -165,7 +170,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message c-message--own">
+        </div>
+        <div class="c-message c-message--own">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -173,7 +179,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message">
+        </div>
+        <div class="c-message">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -181,7 +188,8 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
-        </div><div class="c-message c-message--own">
+        </div>
+        <div class="c-message c-message--own">
           <!-- <div class="c-message__sender">testuser</div> -->
           <div class="message_content">
             <div class="c-message__bubble">
@@ -189,6 +197,35 @@
             </div>
             <div class="c-message__time">16.01</div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div class="js-colorPicker c-colorPicker">
+      <div class="c-colorPicker__card">
+        <button class="js-colorPickerClose o-button-reset"><svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <path d="M 7.21875 5.78125 L 5.78125 7.21875 L 14.5625 16 L 5.78125 24.78125 L 7.21875 26.21875 L 16 17.4375 L 24.78125 26.21875 L 26.21875 24.78125 L 17.4375 16 L 26.21875 7.21875 L 24.78125 5.78125 L 16 14.5625 Z" />
+          </svg></button>
+        <p class="c-colorPicker__head">Now give it an emotion</hp>
+        <div class="c-colorPicker__emotions">
+          <button class="js-colorbtn c-colorPicker__emotion c-colorPicker__emotion--happy o-button-reset">Happy</button>
+          <button class="js-colorbtn c-colorPicker__emotion c-colorPicker__emotion--sad o-button-reset">Sad</button>
+          <button class="js-colorbtn c-colorPicker__emotion c-colorPicker__emotion--disgust o-button-reset">Disgust</button>
+          <button class="js-colorbtn c-colorPicker__emotion c-colorPicker__emotion--anger o-button-reset">Anger</button>
+          <button class="js-colorbtn c-colorPicker__emotion c-colorPicker__emotion--fear o-button-reset">Fear</button>
+          <button class="js-colorbtn c-colorPicker__emotion c-colorPicker__emotion--other o-button-reset">Other</button>
+        </div>
+      </div>
+      <div class="js-colorDecision c-colorDecision">
+        <button class="js-colorDecision__back o-button-reset"><svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <path d="M 19.03125 4.28125 L 8.03125 15.28125 L 7.34375 16 L 8.03125 16.71875 L 19.03125 27.71875 L 20.46875 26.28125 L 10.1875 16 L 20.46875 5.71875 Z" />
+          </svg></button>
+          <button class="js-sendbtn c-colorDecision__sendbtn o-button-reset">Send Message</button>
+        <p class="c-colorPicker__head">Choose your color</p>
+        <div class="js-color-colorname c-colorDecision__colors">
+          <button class="c-colorDecision__color o-button-reset">This is a colorname</button>
+          <button class="c-colorDecision__color o-button-reset">no way another colorname</button>
+          <button class="c-colorDecision__color o-button-reset">this is too much</button>
+          <button class="c-colorDecision__color o-button-reset">stop</button>
         </div>
       </div>
     </div>
