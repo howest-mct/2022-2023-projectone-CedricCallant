@@ -13,6 +13,7 @@ from helpers.MPU_class import Mpu6050
 from helpers.i2c_lcd import *
 import serial
 
+
 def hex_to_dec(value):
     h = value[1:7]
     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
