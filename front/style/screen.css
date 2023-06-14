@@ -599,6 +599,21 @@ html, .c-login {
   }
 }
 
+.c-card-chats {
+  width: 50%;
+  background-color: white;
+  border-radius: 15px;
+  margin-top: 38px;
+  padding: 16px 16px 16px 16px;
+}
+.c-card-chats__heading {
+  display: flex;
+  justify-content: space-between;
+}
+.c-card-chats__head {
+  font-size: 27px;
+}
+
 .c-card-history {
   padding: 16px 16px 16px 46px;
   width: 90%;

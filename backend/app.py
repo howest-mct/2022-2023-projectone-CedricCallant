@@ -365,6 +365,7 @@ def initial_connection():
 
 @socketio.on('F2B_get_loadout')
 def initialise_baseinfo(jsonObject):
+    socketio.emit('B2F_recent_chats', {'chats': DataRepository.get_recent_messages()})
     if jsonObject['id'] == cubeid:
         emit('B2F_curr_color', {'hex': DataRepository.get_last_used_color(4,12)['Value']})
         emit('B2F_toggled', {'mode': idle_mode})

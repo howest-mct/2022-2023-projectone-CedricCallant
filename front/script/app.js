@@ -109,7 +109,6 @@ const showColors = function (jsonObject) {
   document.querySelector('.js-ColorHex').innerHTML = hexString
   document.querySelector('.js-ColorNames').innerHTML = nameString
   listenToUI()
-  handleData(`http://${window.location.hostname}:5000/history/small/${cubeid}/`, showHistory, showError)
 }
 
 const showColors2 = function () {
@@ -211,6 +210,9 @@ const listenToUI = function () {
     document.querySelector('.js-dropdownNames').addEventListener('input', datalistevent)
     document.querySelector('.js-idlebtn').addEventListener('click', toggleIdle)
     document.querySelector('.js-idlebtn').addEventListener('touchstart', toggleIdle)
+    document.querySelector('.js-chatscard').addEventListener("click", function(){
+      window.location.href = `chat.html?userid=${cubeid}`
+    })
   } else if (document.querySelector('.js-chat')) {
     document.querySelector('.js-chatbar').addEventListener('input', function () {
       if (this.value.length > 32) {
@@ -369,6 +371,26 @@ const listenToSocket = function () {
   </tr>`
       }
       document.querySelector('.js-table').innerHTML = htmlString
+    })
+    socketio.on('B2F_recent_chats', function(jsonObject){
+      chats = jsonObject['chats']
+      console.info(chats)
+      htmlString = ''
+      for(let c = 1; c >= 0; c--){
+        htmlString += `<div class="c-message ${checkSender(chats[c].SenderCubeId)}">
+        <!-- <div class="c-message__sender">testuser</div> -->
+        <div class="message_content">
+          <div class="js-bubbles c-message__bubble" data-bcolor="${chats[c].Hexcode}">
+            <p class="c-message_text u-mb-clear">${chats[c].Message}</p>
+          </div>
+          <div class="c-message__time">${chats[c].Tijdstip.substring(11, chats[c].Tijdstip.length - 3)}</div>
+        </div>
+      </div>`
+      }
+      document.querySelector('.js-messages').innerHTML = htmlString;
+      for (let b of document.querySelectorAll('.js-bubbles')) {
+        b.style.boxShadow = `0px 4px 8px rgba(${hexToRgb(b.getAttribute('data-bcolor'))['r']},${hexToRgb(b.getAttribute('data-bcolor'))['g']},${hexToRgb(b.getAttribute('data-bcolor'))['b']},0.5)`
+      }
     })
   } else if (document.querySelector('.js-chat')) {
     socketio.on('B2F_new_message', function (jsonObject) {

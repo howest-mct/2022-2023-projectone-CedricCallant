@@ -75,6 +75,34 @@
         <p class="c-card-power__status u-mb-clear">Cube status: &nbsp; <strong>ON</strong></p>
       </div>
     </div>
+    <div class="js-chatscard c-card-chats">
+      <div class="c-card-chats__heading">
+        <p class="c-card-chats__head">Recent chats</p>
+        <svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+          <path d="M 12.96875 4.28125 L 11.53125 5.71875 L 21.8125 16 L 11.53125 26.28125 L 12.96875 27.71875 L 23.96875 16.71875 L 24.65625 16 L 23.96875 15.28125 Z" />
+        </svg>
+      </div>
+      <div class="js-messages">
+        <div class="c-message">
+          <!-- <div class="c-message__sender">testuser</div> -->
+          <div class="message_content">
+            <div class="c-message__bubble">
+              <p class="c-message_text u-mb-clear">cool</p>
+            </div>
+            <div class="c-message__time">16.01</div>
+          </div>
+        </div>
+        <div class="c-message c-message--own">
+          <!-- <div class="c-message__sender">testuser</div> -->
+          <div class="message_content">
+            <div class="c-message__bubble">
+              <p class="c-message_text u-mb-clear">not really</p>
+            </div>
+            <div class="c-message__time">16.01</div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="c-card c-card-color o-layout">
       <div class="c-card-color__selector">
         <input class="js-dropdown js-dropdownNames c-dropdown" type="text" list="colornames" placeholder="Jordy Blue">
@@ -100,28 +128,6 @@
           <option value="sound">sound</option>
         </select>
       </div>
-    </div>
-    <div class="c-card-history">
-      <table class="js-table c-table">
-        <tr>
-          <th class="c-table__head">Time</th>
-          <th class="c-table__head">Type</th>
-          <th class="c-table__head">Value</th>
-          <th class="c-table__head">Description</th>
-        </tr>
-        <tr>
-          <td class="c-table__values">22/03/2023 <br>08:05:00</td>
-          <td class="c-table__values">sensor</td>
-          <td class="c-table__values">2G</td>
-          <td class="c-table__values">Measures the speed at which the cube has been moved</td>
-        </tr>
-        <tr>
-          <td class="c-table__values">22/03/2023<br>08:05:00</td>
-          <td class="c-table__values">actuator</td>
-          <td class="c-table__values">True</td>
-          <td class="c-table__values">Shows if the ledstrip in the cube is on (True) or off (False)</td>
-        </tr>
-      </table>
     </div>
   </main>
 
