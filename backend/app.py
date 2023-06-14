@@ -13,6 +13,14 @@ from helpers.MPU_class import Mpu6050
 from helpers.i2c_lcd import *
 import serial
 
+tcL = 20
+tcM = 16
+tcR = 12
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(tcL, GPIO.IN)
+GPIO.setup(tcM, GPIO.IN)
+GPIO.setup(tcR, GPIO.IN)
 
 def hex_to_dec(value):
     h = value[1:7]
@@ -37,8 +45,15 @@ cubeid = '29F0889C'
 sound_detection = 21
 idle_mode = get_idle_mode(DataRepository.get_last_idle_state(1,8,12))
 last_known_event = DataRepository.get_last_events(cubeid)
+help_muc = DataRepository.get_most_used_colors(12)
 scanned_id = ''
 readrfid = False
+most_used_colors = []
+
+for i in help_muc:
+    most_used_colors.append(i['value'])
+
+print(most_used_colors)
 
 # TODO: GPIO
 reader = SimpleMFRC522Custom() #RFID reader object
@@ -106,14 +121,23 @@ def all_out():
     global started
     global ip_displayed
     global scanned_id
+    global led_color
+    rPrevState = 0
+    lPrevState = 0
+    mPrevState = 0
     timer = time.time()
     # wait 10s with sleep sintead of threading.Timer, so we can use daemon
     time.sleep(10)
     # moment = time.time()
     started =1
     ip_displayed = 0
+    colorcycle = 0
+    touchTimer = time.time()
     while True:
         if not message_received:
+            lState = GPIO.input(tcL)
+            mState = GPIO.input(tcM)
+            rState = GPIO.input(tcR)
             if not ip_displayed:
                 ips = str(check_output(['hostname', '--all-ip-addresses']))
                 adresses = ips.split(" ")
@@ -134,6 +158,21 @@ def all_out():
                         timer = time.time()
             except:
                 pass
+            if (lState != lPrevState) or (rState != rPrevState):
+                if time.time() >= touchTimer +0.5:
+                    if lState == 1:
+                        colorcycle-=1
+                        if colorcycle < 0:
+                            colorcycle = len(most_used_colors)
+                    elif rState == 1:
+                        
+                        colorcycle +=1
+                        if colorcycle > len(most_used_colors):
+                            colorcycle = 0
+                    led_color = hex_to_dec(most_used_colors[colorcycle-1])
+                    touchTimer = time.time()
+                lPrevState = lState
+                rPrevState = rState
             if readrfid:
                 scanned_id = reader.read_id()
                 print(scanned_id)
@@ -212,7 +251,7 @@ def esp_thread():
         
         if(not stop_polling):
             info = ser.readline().decode()
-            # print(info)
+            print(info)
             if info == "":
                 pass
             elif info[0:3] == 'mpu':
@@ -432,9 +471,8 @@ def receive_msg(jsonObject):
         if data != None:
             socketio.emit('B2F_new_message', {'msg': jsonObject, 'time': timer})
             stop_polling = 1
-            ser.write(f"da:msgt {jsonObject['msg']}".encode())
-            time.sleep(1)
-            ser.write(f"da:msgc {hex_to_dec(jsonObject['color'])}".encode())
+            ser.write(f"da:msgt {jsonObject['msg']}\n".encode())
+            ser.write(f"da:msgc {hex_to_dec(jsonObject['color'])}\n".encode())
             # messages.append({'message': jsonObject['msg'], 'color': jsonObject['color']})
             stop_polling = 0
             
