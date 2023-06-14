@@ -399,6 +399,10 @@ a:active {
 .c-login__username {
   color: white;
 }
+.c-login__form {
+  display: flex;
+  flex-direction: column;
+}
 .c-login input {
   width: 100%;
   border-radius: 100px;

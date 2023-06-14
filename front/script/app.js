@@ -33,10 +33,10 @@ const checkSender = function (userid) {
   }
 }
 
-const showRFID = function (jsonObject) {
+const toHomepage = function (jsonObject) {
   console.info(jsonObject)
-  document.querySelector('.js-login').innerHTML = 'Hold the tag in front of your cube'
-  socketio.emit('F2B_read_tag', { id: jsonObject['CubeId'] })
+  window.location.href = `index.html?userid=${jsonObject['CubeId']}`
+  cubeid = jsonObject['cubeid']
 }
 
 const hexToRgb = function (hex) {
@@ -54,8 +54,13 @@ const saveColor = function (jsonObject) {
 
 const showloginError = function (err) {
   console.error(err)
-  document.querySelector('.js-loginveld').style.border = "2px solid #FF0000";
-  document.querySelector('.js-loginfout').innerHTML = 'This name is not linked to a cube'
+  if(err['status'] == 422){
+    document.querySelector('.js-loginfout').innerHTML = "Password incorrect, please try again"
+    document.querySelector('.js-loginveld_password').style.border = "2px solid #FF0000"
+  } else if(err['status'] == 404){
+    document.querySelector('.js-loginfout').innerHTML = "Username not found, try a different name"
+    document.querySelector('.js-loginveld_username').style.border = "2px solid #FF0000"
+  }
 }
 
 const datalistevent = function (e) {
@@ -172,15 +177,24 @@ const toggleIdle = function () {
 const listenToUI = function () {
   if (document.querySelector('.js-login')) {
     document.querySelector('.js-login-btn').addEventListener('click', function () {
-      const loginveld = document.querySelector('.js-loginveld')
-      if (loginveld.value == null | loginveld.value == "") {
-        console.info(loginveld.style.border);
-        loginveld.style.border = "2px solid #FF0000";
-        document.querySelector('.js-loginfout').innerHTML = 'Please fill in the field above'
+      const username = document.querySelector('.js-loginveld_username')
+      const password = document.querySelector('.js-loginveld_password')
+      if((username.value == null | username.value == "") & (password.value == null | password.value == "")){
+        username.style.border = "2px solid #FF0000";
+        password.style.border = "2px solid #FF0000"
+        document.querySelector('.js-loginfout').innerHTML = 'Please fill in the fields to continue'
+      }
+      else if (username.value == null | username.value == "") {
+        username.style.border = "2px solid #FF0000";
+        document.querySelector('.js-loginfout').innerHTML = 'Please fill in your username'
+      }else if (password.value == null | password.value == ""){
+        password.style.border = "2px solid #FF0000"
+        document.querySelector('.js-loginfout').innerHTML = 'Please fill in your password'
       } else {
-        loginveld.style.border = "2px solid #FFFFFF";
-        const username = JSON.stringify({ username: loginveld.value });
-        handleData(`http://${window.location.hostname}:5000/login/`, showRFID, showloginError, 'POST', username);
+        username.style.border = "2px solid #FFFFFF";
+        password.style.border = "2px solid #FFFFFF";
+        const loginInfo = JSON.stringify({ username: username.value, password: password.value });
+        handleData(`http://${window.location.hostname}:5000/login/`, toHomepage, showloginError, 'POST', loginInfo);
       }
     })
   } else if (document.querySelector('.js-home')) {
