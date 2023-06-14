@@ -11,6 +11,7 @@ from helpers.simpleRfid import SimpleMFRC522Custom
 from helpers.Ledstrip_Class import Ledstrip
 from helpers.MPU_class import Mpu6050
 from helpers.i2c_lcd import *
+import hashlib
 import serial
 
 tcL = 20
@@ -325,9 +326,12 @@ def login():
         input = DataRepository.json_or_formdata(request)
         data = DataRepository.read_cube_with_name(input['username'])
         if data is not None:
-            return jsonify(data), 200
+            if data['Password'] == hashlib.sha256(input['password'].encode()).hexdigest():
+                return jsonify(data), 200
+            else:
+                return jsonify(error = 'Wrong password'), 422
         else:
-            return jsonify(error='Username niet gevonden'), 404
+            return jsonify(error='Username or password incorrect'), 404
         
 @app.route('/color/')
 def get_colors():

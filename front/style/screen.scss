@@ -544,6 +544,12 @@ a:active {
   &__username{
     color: white;
   }
+
+  &__form{
+    display: flex;
+    flex-direction: column;
+  }
+
   input {
     width: 100%;
     border-radius: 100px;
