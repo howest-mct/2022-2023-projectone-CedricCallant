@@ -694,17 +694,10 @@ html, .c-login{
   &__status strong{
     color: #00ff00;
   }
-
-
   
   @media (max-width: 1280px) {
-     width: 50%;
-  }
-  
-  @media (max-width: 576px) {
      width: 90%;
   }
-  
 }
 
 .c-card-color{
@@ -1011,11 +1004,17 @@ html, .c-login{
   width: 50%;
   display: inline-block;
   flex-direction: column;
+  @media (max-width: 992px) {
+    width: 100%;
+ }
 }
 
 .c-help-big{
   display: flex;
   gap: 16px;
+  @media (max-width: 992px) {
+    flex-direction: column;
+ }
 }
 
 .c-card-graph{
@@ -1024,7 +1023,10 @@ html, .c-login{
   border-radius: 15px;
   margin-right: 16px;
   padding: 16px 16px 16px 16px;
-
+  
+  @media (max-width: 992px) {
+    width: 100%;
+ }
 }
 
 .c-dropdown{

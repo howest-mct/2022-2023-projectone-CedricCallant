@@ -537,11 +537,6 @@ html, .c-login {
 }
 @media (max-width: 1280px) {
   .c-card-power {
-    width: 50%;
-  }
-}
-@media (max-width: 576px) {
-  .c-card-power {
     width: 90%;
   }
 }
@@ -812,10 +807,20 @@ html, .c-login {
   display: inline-block;
   flex-direction: column;
 }
+@media (max-width: 992px) {
+  .c-help {
+    width: 100%;
+  }
+}
 
 .c-help-big {
   display: flex;
   gap: 16px;
+}
+@media (max-width: 992px) {
+  .c-help-big {
+    flex-direction: column;
+  }
 }
 
 .c-card-graph {
@@ -824,6 +829,11 @@ html, .c-login {
   border-radius: 15px;
   margin-right: 16px;
   padding: 16px 16px 16px 16px;
+}
+@media (max-width: 992px) {
+  .c-card-graph {
+    width: 100%;
+  }
 }
 
 .c-dropdown {
