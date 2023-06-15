@@ -514,7 +514,7 @@ html, .c-login {
 }
 
 .c-card-power {
-  width: 35%;
+  width: 70%;
   background-color: white;
   border-radius: 15px;
   gap: 39px;
@@ -600,7 +600,7 @@ html, .c-login {
 }
 
 .c-card-chats {
-  width: 50%;
+  width: 100%;
   background-color: white;
   border-radius: 15px;
   margin-top: 38px;
@@ -805,6 +805,25 @@ html, .c-login {
   background-color: #AFDBF5;
   border-radius: 10px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.c-help {
+  width: 50%;
+  display: inline-block;
+  flex-direction: column;
+}
+
+.c-help-big {
+  display: flex;
+  gap: 16px;
+}
+
+.c-card-graph {
+  width: 50%;
+  background-color: white;
+  border-radius: 15px;
+  margin-right: 16px;
+  padding: 16px 16px 16px 16px;
 }
 
 .c-dropdown {

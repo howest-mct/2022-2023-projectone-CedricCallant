@@ -54,10 +54,10 @@ const saveColor = function (jsonObject) {
 
 const showloginError = function (err) {
   console.error(err)
-  if(err['status'] == 422){
+  if (err['status'] == 422) {
     document.querySelector('.js-loginfout').innerHTML = "Password incorrect, please try again"
     document.querySelector('.js-loginveld_password').style.border = "2px solid #FF0000"
-  } else if(err['status'] == 404){
+  } else if (err['status'] == 404) {
     document.querySelector('.js-loginfout').innerHTML = "Username not found, try a different name"
     document.querySelector('.js-loginveld_username').style.border = "2px solid #FF0000"
   }
@@ -169,6 +169,109 @@ const showChats = function (jsonObject) {
 
 }
 
+const showGraph = function (jsonObject) {
+  // console.info(jsonObject)
+  const help_cube = jsonObject[0]['SenderCubeID']
+  // let converted_labels = []
+  let last_time;
+  let date_saved;
+  let converted_labels = []
+  let converted_data_cube1 = []
+  let converted_data_cube2 = []
+  for (const dag of jsonObject) {
+    // console.info(dag.Tijdstip.substring(0, 10))
+    if (last_time != dag.Tijdstip.substring(0, 10)) {
+      converted_labels.push(dag.Tijdstip.substring(0, 10))
+      last_time = dag.Tijdstip.substring(0, 10)
+      if (date_saved & dag.SenderCubeID == help_cube & converted_data_cube1.length != converted_data_cube2.length) {
+        converted_data_cube2.push(0)
+        date_saved = false
+      }
+      if (dag.SenderCubeID == help_cube) {
+        converted_data_cube1.push(dag.totaal)
+        date_saved = true
+      } else {
+        converted_data_cube1.push(0)
+        converted_data_cube2.push(dag.totaal)
+      }
+    } else {
+      converted_data_cube2.push(dag.totaal)
+    }
+    // converted_labels.push()
+  }
+  drawchart(converted_data_cube1, converted_data_cube2, converted_labels)
+}
+
+const drawchart = function (data_cube1, data_cube2, label) {
+  var options = {
+    series: [{
+      name: 'messages per day',
+      data: data_cube1,
+    }, {
+      name: 'other messages',
+      data: data_cube2
+    }],
+    labels: label,
+    noData: {
+      text: 'loading...'
+    },
+    chart: {
+      type: 'bar',
+      height: 350,
+      stacked: true,
+      toolbar: {
+        show: true
+      },
+      zoom: {
+        enabled: true
+      }
+    },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        legend: {
+          position: 'bottom',
+          offsetX: -10,
+          offsetY: 0
+        }
+      }
+    }],
+    dataLabels: {
+      enabled: false,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 10,
+        dataLabels: {
+          total: {
+            enabled: true,
+            style: {
+              fontSize: '13px',
+              fontWeight: 900
+            }
+          }
+        }
+      },
+    },
+    xaxis: {
+      type: 'datetime',
+      categories: ['01/01/2011 GMT', '01/02/2011 GMT', '01/03/2011 GMT', '01/04/2011 GMT',
+        '01/05/2011 GMT', '01/06/2011 GMT'
+      ],
+    },
+    legend: {
+      position: 'right',
+      offsetY: 40
+    },
+    fill: {
+      opacity: 1
+    }
+  };
+  var chart = new ApexCharts(document.querySelector('.js-chart'), options);
+  chart.render()
+}
+
 const toggleIdle = function () {
   socketio.emit('F2B_toggle_idle', { 'id': cubeid, 'state': this.innerHTML })
 }
@@ -178,7 +281,7 @@ const listenToUI = function () {
     document.querySelector('.js-login-btn').addEventListener('click', function () {
       const username = document.querySelector('.js-loginveld_username')
       const password = document.querySelector('.js-loginveld_password')
-      if((username.value == null | username.value == "") & (password.value == null | password.value == "")){
+      if ((username.value == null | username.value == "") & (password.value == null | password.value == "")) {
         username.style.border = "2px solid #FF0000";
         password.style.border = "2px solid #FF0000"
         document.querySelector('.js-loginfout').innerHTML = 'Please fill in the fields to continue'
@@ -186,7 +289,7 @@ const listenToUI = function () {
       else if (username.value == null | username.value == "") {
         username.style.border = "2px solid #FF0000";
         document.querySelector('.js-loginfout').innerHTML = 'Please fill in your username'
-      }else if (password.value == null | password.value == ""){
+      } else if (password.value == null | password.value == "") {
         password.style.border = "2px solid #FF0000"
         document.querySelector('.js-loginfout').innerHTML = 'Please fill in your password'
       } else {
@@ -210,7 +313,7 @@ const listenToUI = function () {
     document.querySelector('.js-dropdownNames').addEventListener('input', datalistevent)
     document.querySelector('.js-idlebtn').addEventListener('click', toggleIdle)
     document.querySelector('.js-idlebtn').addEventListener('touchstart', toggleIdle)
-    document.querySelector('.js-chatscard').addEventListener("click", function(){
+    document.querySelector('.js-chatscard').addEventListener("click", function () {
       window.location.href = `chat.html?userid=${cubeid}`
     })
   } else if (document.querySelector('.js-chat')) {
@@ -274,9 +377,11 @@ const listenToUI = function () {
             document.querySelector('.js-sendbtn').style.display = 'none'
             document.querySelector('.js-colorPicker').style.display = 'none'
             document.querySelector('.js-colorDecision').style.display = 'none'
-            console.info(chosenColor)
             if (chosenColor != null) {
               socketio.emit('F2B_send_message', { 'id': cubeid, 'msg': text, 'color': chosenColor })
+              chosenColor = ""
+              msg = ""
+              document.querySelector('.js-chatbar').value = ''
             }
           })
         })
@@ -372,11 +477,11 @@ const listenToSocket = function () {
       }
       document.querySelector('.js-table').innerHTML = htmlString
     })
-    socketio.on('B2F_recent_chats', function(jsonObject){
+    socketio.on('B2F_recent_chats', function (jsonObject) {
       chats = jsonObject['chats']
       console.info(chats)
       htmlString = ''
-      for(let c = 1; c >= 0; c--){
+      for (let c = 1; c >= 0; c--) {
         htmlString += `<div class="c-message ${checkSender(chats[c].SenderCubeId)}">
         <!-- <div class="c-message__sender">testuser</div> -->
         <div class="message_content">
@@ -426,6 +531,8 @@ const init = function () {
     } else {
       cubeid = urlparams.get('userid')
       handleData(`http://${window.location.hostname}:5000/color/`, showColors, showError)
+      handleData(`http://${window.location.hostname}:5000/graphinfo/`, showGraph, showError)
+
     }
   } else if (document.querySelector('.js-chat')) {
     const urlparams = new URLSearchParams(window.location.search);

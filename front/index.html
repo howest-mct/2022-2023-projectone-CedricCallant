@@ -10,6 +10,7 @@
   <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
   <script src="script/datahandler.js"></script>
   <script src="script/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 
 <body class="js-home">
@@ -66,43 +67,51 @@
   </header>
   <main class="c-main">
     <h2>Home</h2>
-    <div class="c-card c-card-power o-layout o-layout--align-center">
-      <button class="c-card-power__btn u-button-reset"><svg class="c-card-power__icon o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-          <path d="M 15 4 L 15 16 L 17 16 L 17 4 Z M 12 4.6875 C 7.347656 6.339844 4 10.785156 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 10.785156 24.652344 6.339844 20 4.6875 L 20 6.84375 C 23.527344 8.390625 26 11.910156 26 16 C 26 21.515625 21.515625 26 16 26 C 10.484375 26 6 21.515625 6 16 C 6 11.910156 8.472656 8.390625 12 6.84375 Z" />
-        </svg></button>
-      <div class="c-card-power__info">
-        <p class="u-mb-clear">Power off this cube</p>
-        <p class="c-card-power__status u-mb-clear">Cube status: &nbsp; <strong>ON</strong></p>
-      </div>
-    </div>
-    <div class="js-chatscard c-card-chats">
-      <div class="c-card-chats__heading">
-        <p class="c-card-chats__head">Recent chats</p>
-        <svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-          <path d="M 12.96875 4.28125 L 11.53125 5.71875 L 21.8125 16 L 11.53125 26.28125 L 12.96875 27.71875 L 23.96875 16.71875 L 24.65625 16 L 23.96875 15.28125 Z" />
-        </svg>
-      </div>
-      <div class="js-messages">
-        <div class="c-message">
-          <!-- <div class="c-message__sender">testuser</div> -->
-          <div class="message_content">
-            <div class="c-message__bubble">
-              <p class="c-message_text u-mb-clear">cool</p>
-            </div>
-            <div class="c-message__time">16.01</div>
+    <div class="c-help-big">
+      <div class="c-help">
+        <div class="c-card c-card-power o-layout o-layout--align-center">
+          <button class="c-card-power__btn u-button-reset"><svg class="c-card-power__icon o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+              <path d="M 15 4 L 15 16 L 17 16 L 17 4 Z M 12 4.6875 C 7.347656 6.339844 4 10.785156 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 10.785156 24.652344 6.339844 20 4.6875 L 20 6.84375 C 23.527344 8.390625 26 11.910156 26 16 C 26 21.515625 21.515625 26 16 26 C 10.484375 26 6 21.515625 6 16 C 6 11.910156 8.472656 8.390625 12 6.84375 Z" />
+            </svg></button>
+          <div class="c-card-power__info">
+            <p class="u-mb-clear">Power off this cube</p>
+            <p class="c-card-power__status u-mb-clear">Cube status: &nbsp; <strong>ON</strong></p>
           </div>
         </div>
-        <div class="c-message c-message--own">
-          <!-- <div class="c-message__sender">testuser</div> -->
-          <div class="message_content">
-            <div class="c-message__bubble">
-              <p class="c-message_text u-mb-clear">not really</p>
+        <div class="js-chatscard c-card-chats">
+          <div class="c-card-chats__heading">
+            <p class="c-card-chats__head">Recent chats</p>
+            <svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+              <path d="M 12.96875 4.28125 L 11.53125 5.71875 L 21.8125 16 L 11.53125 26.28125 L 12.96875 27.71875 L 23.96875 16.71875 L 24.65625 16 L 23.96875 15.28125 Z" />
+            </svg>
+          </div>
+          <div class="js-messages">
+            <div class="c-message">
+              <!-- <div class="c-message__sender">testuser</div> -->
+              <div class="message_content">
+                <div class="c-message__bubble">
+                  <p class="c-message_text u-mb-clear">cool</p>
+                </div>
+                <div class="c-message__time">16.01</div>
+              </div>
             </div>
-            <div class="c-message__time">16.01</div>
+            <div class="c-message c-message--own">
+              <!-- <div class="c-message__sender">testuser</div> -->
+              <div class="message_content">
+                <div class="c-message__bubble">
+                  <p class="c-message_text u-mb-clear">not really</p>
+                </div>
+                <div class="c-message__time">16.01</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+      <div class="c-card-graph">
+        <div id="chart" class="c-chart js-chart"></div>
+      </div>
     </div>
+
     <div class="c-card c-card-color o-layout">
       <div class="c-card-color__selector">
         <input class="js-dropdown js-dropdownNames c-dropdown" type="text" list="colornames" placeholder="Jordy Blue">
