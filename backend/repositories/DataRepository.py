@@ -61,5 +61,5 @@ class DataRepository:
         return Database.get_rows(sql)
     
     def get_message_amount():
-        sql = "SELECT DATE_FORMAT(Tijdstip,'%Y-%m-%d %H:%i:%S') as `Tijdstip` , SenderCubeID, count(*) as `totaal` FROM ChatMessage WHERE Tijdstip > now() - interval 6 day GROUP BY date(Tijdstip), SenderCubeId order by date(`Tijdstip`) asc, SenderCubeId asc;"
+        sql = "SELECT DATE_FORMAT(ch.Tijdstip,'%Y-%m-%d %H:%i:%S') as `Tijdstip` , ch.SenderCubeID, count(*) as `totaal`, c.Username FROM ChatMessage ch join Cube c on ch.SenderCubeID = c.CubeId WHERE Tijdstip > now() - interval 6 day GROUP BY date(Tijdstip), SenderCubeId order by date(`Tijdstip`) asc, SenderCubeId asc;"
         return Database.get_rows(sql)

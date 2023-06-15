@@ -171,7 +171,11 @@ const showChats = function (jsonObject) {
 
 const showGraph = function (jsonObject) {
   // console.info(jsonObject)
+  const name_cube = jsonObject[0]['Username']
   const help_cube = jsonObject[0]['SenderCubeID']
+  let name_cube2 = ''
+  let help_cube2 = ''
+
   // let converted_labels = []
   let last_time;
   let date_saved;
@@ -179,7 +183,13 @@ const showGraph = function (jsonObject) {
   let converted_data_cube1 = []
   let converted_data_cube2 = []
   for (const dag of jsonObject) {
-    // console.info(dag.Tijdstip.substring(0, 10))
+    if (help_cube2 == '') {
+      if (help_cube != dag.SenderCubeID) {
+        name_cube2 = dag.Username
+        help_cube2 = dag.SenderCubeID
+      }
+    }
+    console.info(name_cube)
     if (last_time != dag.Tijdstip.substring(0, 10)) {
       converted_labels.push(dag.Tijdstip.substring(0, 10))
       last_time = dag.Tijdstip.substring(0, 10)
@@ -197,18 +207,19 @@ const showGraph = function (jsonObject) {
     } else {
       converted_data_cube2.push(dag.totaal)
     }
-    // converted_labels.push()
   }
-  drawchart(converted_data_cube1, converted_data_cube2, converted_labels)
+  console.info(converted_data_cube1)
+  drawchart(converted_data_cube1, converted_data_cube2, converted_labels, name_cube, name_cube2)
 }
 
-const drawchart = function (data_cube1, data_cube2, label) {
+const drawchart = function (data_cube1, data_cube2, label, cube1, cube2) {
+  
   var options = {
     series: [{
-      name: 'messages per day',
+      name: cube1,
       data: data_cube1,
     }, {
-      name: 'other messages',
+      name: cube2,
       data: data_cube2
     }],
     labels: label,
