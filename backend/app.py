@@ -68,6 +68,7 @@ lcd = lcd()
 
 
 leds = Ledstrip() #Ledstrip class
+leds.set_Brightness(0.3)
 leds_on = True
 led_mode= 'static'
 led_prev_mode = 'static'
@@ -82,7 +83,7 @@ message_received = False
 def set_led_mode(led_mode = led_mode):
     global led_prev_mode
     if led_mode == 'static':
-        leds.set_Brightness(1)
+        leds.set_Brightness(0.3)
         leds.static(led_color)
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
@@ -95,7 +96,7 @@ def set_led_mode(led_mode = led_mode):
             print('ledmode set to pulse')
             return DataRepository.add_to_history(12,5)
     elif led_mode == 'wave':
-        leds.set_Brightness(1)
+        leds.set_Brightness(0.3)
         leds.wave(led_color)
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
@@ -146,7 +147,7 @@ def all_out():
                 ip_displayed = 1
             try:
                 acc_state = accelero.read_data()['acc']
-                if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1 or acc_state['y'] < -1):
+                if (acc_state['x'] > 1 or acc_state['x'] < -1) or (acc_state['y'] > 1.5 or acc_state['y'] < -1.5):
                     if time.time() >= timer + 3:
                         print('movement detected')
                         DataRepository.add_to_history(11,11, acc_state['x'])
@@ -162,11 +163,12 @@ def all_out():
             if (lState != lPrevState) or (rState != rPrevState):
                 if time.time() >= touchTimer +0.5:
                     if lState == 1:
+                        print("min")
                         colorcycle-=1
                         if colorcycle < 0:
                             colorcycle = len(most_used_colors)
                     elif rState == 1:
-                        
+                        print("plus")
                         colorcycle +=1
                         if colorcycle > len(most_used_colors):
                             colorcycle = 0
@@ -251,7 +253,7 @@ def esp_thread():
     while True:
         
         if(not stop_polling):
-            info = ser.readline().decode()
+            info = ser.readline().decode('utf-8')
             print(info)
             if info == "":
                 pass
@@ -345,6 +347,14 @@ def get_chats():
     else:
         return jsonify(error = 'De chats zijn niet beschikbaar')
 
+@app.route('/graphinfo/')
+def get_chart():
+    data = DataRepository.get_message_amount()
+    if data is not None:
+        return jsonify(data), 200
+    else:
+        return jsonify(error = 'messages not found')
+
 @app.route('/history/small/<id>/')
 def get_small_history(id):
     data = DataRepository.get_last_events(id)
@@ -365,6 +375,7 @@ def initial_connection():
 
 @socketio.on('F2B_get_loadout')
 def initialise_baseinfo(jsonObject):
+    socketio.emit('B2F_recent_chats', {'chats': DataRepository.get_recent_messages()})
     if jsonObject['id'] == cubeid:
         emit('B2F_curr_color', {'hex': DataRepository.get_last_used_color(4,12)['Value']})
         emit('B2F_toggled', {'mode': idle_mode})

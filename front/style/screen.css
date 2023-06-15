@@ -514,7 +514,7 @@ html, .c-login {
 }
 
 .c-card-power {
-  width: 35%;
+  width: 70%;
   background-color: white;
   border-radius: 15px;
   gap: 39px;
@@ -536,11 +536,6 @@ html, .c-login {
   color: #00ff00;
 }
 @media (max-width: 1280px) {
-  .c-card-power {
-    width: 50%;
-  }
-}
-@media (max-width: 576px) {
   .c-card-power {
     width: 90%;
   }
@@ -597,6 +592,21 @@ html, .c-login {
   .c-card-color {
     flex-direction: column;
   }
+}
+
+.c-card-chats {
+  width: 100%;
+  background-color: white;
+  border-radius: 15px;
+  margin-top: 38px;
+  padding: 16px 16px 16px 16px;
+}
+.c-card-chats__heading {
+  display: flex;
+  justify-content: space-between;
+}
+.c-card-chats__head {
+  font-size: 27px;
 }
 
 .c-card-history {
@@ -790,6 +800,40 @@ html, .c-login {
   background-color: #AFDBF5;
   border-radius: 10px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.c-help {
+  width: 50%;
+  display: inline-block;
+  flex-direction: column;
+}
+@media (max-width: 992px) {
+  .c-help {
+    width: 100%;
+  }
+}
+
+.c-help-big {
+  display: flex;
+  gap: 16px;
+}
+@media (max-width: 992px) {
+  .c-help-big {
+    flex-direction: column;
+  }
+}
+
+.c-card-graph {
+  width: 50%;
+  background-color: white;
+  border-radius: 15px;
+  margin-right: 16px;
+  padding: 16px 16px 16px 16px;
+}
+@media (max-width: 992px) {
+  .c-card-graph {
+    width: 100%;
+  }
 }
 
 .c-dropdown {

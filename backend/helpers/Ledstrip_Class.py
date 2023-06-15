@@ -4,9 +4,10 @@ import time
 
 class Ledstrip:
 
-    def __init__(self, pin=board.D18,ledcount = 120, pixel_order = neopixel.GRB) -> None:
+    def __init__(self, pin=board.D18,ledcount = 70, pixel_order = neopixel.GRB) -> None:
         self.__pixel = neopixel.NeoPixel(pin,ledcount, pixel_order=pixel_order)
         self.__LEDRANGE = ledcount
+        self.__pixel.brightness = 0.3
 
 
     # ********** property pixel - (enkel getter) ***********
@@ -26,7 +27,7 @@ class Ledstrip:
     def pulse(self, color):
         self.pixel.fill(color)
         curr_br = self.pixel.brightness*100
-        for i in range(int(curr_br),100,1):
+        for i in range(int(curr_br),30,1):
             self.pixel.brightness = i/100.0
             time.sleep(0.01)
         curr_br = self.pixel.brightness*100
@@ -56,7 +57,7 @@ class Ledstrip:
         self.pixel.fill((0,0,0))
 
     def white_light(self, preference):
-        self.set_Brightness(1.0)
+        self.set_Brightness(0.3)
         if preference == 'warm':
             self.pixel.fill((253, 244, 220))
         elif preference == 'cold':

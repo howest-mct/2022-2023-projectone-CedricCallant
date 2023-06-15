@@ -669,7 +669,8 @@ html, .c-login{
 }
 
 .c-card-power{
-  width: 35%;
+  width: 70%;
+  // display: inline-block;
   background-color: $color-text-light;
   border-radius: 15px;
   gap: 39px;
@@ -693,17 +694,10 @@ html, .c-login{
   &__status strong{
     color: #00ff00;
   }
-
-
   
   @media (max-width: 1280px) {
-     width: 50%;
-  }
-  
-  @media (max-width: 576px) {
      width: 90%;
   }
-  
 }
 
 .c-card-color{
@@ -759,6 +753,24 @@ html, .c-login{
      flex-direction: column;
   }
   
+}
+
+.c-card-chats{
+  width: 100%;
+  background-color: $color-text-light;
+  border-radius: 15px;
+  margin-top: 38px;
+  padding: 16px 16px 16px 16px;
+
+  &__heading{
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__head{
+    font-size: 27px;
+  }
+
 }
 
 .c-card-history{
@@ -988,6 +1000,34 @@ html, .c-login{
   }
 }
 
+.c-help{
+  width: 50%;
+  display: inline-block;
+  flex-direction: column;
+  @media (max-width: 992px) {
+    width: 100%;
+ }
+}
+
+.c-help-big{
+  display: flex;
+  gap: 16px;
+  @media (max-width: 992px) {
+    flex-direction: column;
+ }
+}
+
+.c-card-graph{
+  width: 50%;
+  background-color: $color-text-light;
+  border-radius: 15px;
+  margin-right: 16px;
+  padding: 16px 16px 16px 16px;
+  
+  @media (max-width: 992px) {
+    width: 100%;
+ }
+}
 
 .c-dropdown{
   width: 100%;

@@ -10,6 +10,7 @@
   <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
   <script src="script/datahandler.js"></script>
   <script src="script/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 
 <body class="js-home">
@@ -20,7 +21,7 @@
       <a href="javascript:void(0)" class="c-closebtn" onclick="closeNav()">&times;</a>
 
       <!-- Overlay content -->
-      <div class="c-overlay__content">
+      <div class="js-navigation c-overlay__content">
         <a href="index.html">Home</a>
         <a href="chat.html">Chat</a>
         <a href="#">History</a>
@@ -36,7 +37,7 @@
       <h1 class="c-logo__name">CommCubes</h1>
 
       <nav class="c-nav">
-        <ul class="c-nav__list o-list-reset">
+        <ul class="js-navbar c-nav__list o-list-reset">
           <li>
             <div class="c-nav__item c-nav__item--selected js-nav__home"><svg class="c-nav__svg c-nav__svg--selected o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                 <path d="M 16 2.59375 L 15.28125 3.28125 L 2.28125 16.28125 L 3.71875 17.71875 L 5 16.4375 L 5 28 L 14 28 L 14 18 L 18 18 L 18 28 L 27 28 L 27 16.4375 L 28.28125 17.71875 L 29.71875 16.28125 L 16.71875 3.28125 Z M 16 5.4375 L 25 14.4375 L 25 26 L 20 26 L 20 16 L 12 16 L 12 26 L 7 26 L 7 14.4375 Z" />
@@ -66,15 +67,51 @@
   </header>
   <main class="c-main">
     <h2>Home</h2>
-    <div class="c-card c-card-power o-layout o-layout--align-center">
-      <button class="c-card-power__btn u-button-reset"><svg class="c-card-power__icon o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-          <path d="M 15 4 L 15 16 L 17 16 L 17 4 Z M 12 4.6875 C 7.347656 6.339844 4 10.785156 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 10.785156 24.652344 6.339844 20 4.6875 L 20 6.84375 C 23.527344 8.390625 26 11.910156 26 16 C 26 21.515625 21.515625 26 16 26 C 10.484375 26 6 21.515625 6 16 C 6 11.910156 8.472656 8.390625 12 6.84375 Z" />
-        </svg></button>
-      <div class="c-card-power__info">
-        <p class="u-mb-clear">Power off this cube</p>
-        <p class="c-card-power__status u-mb-clear">Cube status: &nbsp; <strong>ON</strong></p>
+    <div class="c-help-big">
+      <div class="c-help">
+        <div class="c-card c-card-power o-layout o-layout--align-center">
+          <button class="c-card-power__btn u-button-reset"><svg class="c-card-power__icon o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+              <path d="M 15 4 L 15 16 L 17 16 L 17 4 Z M 12 4.6875 C 7.347656 6.339844 4 10.785156 4 16 C 4 22.617188 9.382813 28 16 28 C 22.617188 28 28 22.617188 28 16 C 28 10.785156 24.652344 6.339844 20 4.6875 L 20 6.84375 C 23.527344 8.390625 26 11.910156 26 16 C 26 21.515625 21.515625 26 16 26 C 10.484375 26 6 21.515625 6 16 C 6 11.910156 8.472656 8.390625 12 6.84375 Z" />
+            </svg></button>
+          <div class="c-card-power__info">
+            <p class="u-mb-clear">Power off this cube</p>
+            <p class="c-card-power__status u-mb-clear">Cube status: &nbsp; <strong>ON</strong></p>
+          </div>
+        </div>
+        <div class="js-chatscard c-card-chats">
+          <div class="c-card-chats__heading">
+            <p class="c-card-chats__head">Recent chats</p>
+            <svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+              <path d="M 12.96875 4.28125 L 11.53125 5.71875 L 21.8125 16 L 11.53125 26.28125 L 12.96875 27.71875 L 23.96875 16.71875 L 24.65625 16 L 23.96875 15.28125 Z" />
+            </svg>
+          </div>
+          <div class="js-messages">
+            <div class="c-message">
+              <!-- <div class="c-message__sender">testuser</div> -->
+              <div class="message_content">
+                <div class="c-message__bubble">
+                  <p class="c-message_text u-mb-clear">cool</p>
+                </div>
+                <div class="c-message__time">16.01</div>
+              </div>
+            </div>
+            <div class="c-message c-message--own">
+              <!-- <div class="c-message__sender">testuser</div> -->
+              <div class="message_content">
+                <div class="c-message__bubble">
+                  <p class="c-message_text u-mb-clear">not really</p>
+                </div>
+                <div class="c-message__time">16.01</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="c-card-graph">
+        <div id="chart" class="c-chart js-chart"></div>
       </div>
     </div>
+
     <div class="c-card c-card-color o-layout">
       <div class="c-card-color__selector">
         <input class="js-dropdown js-dropdownNames c-dropdown" type="text" list="colornames" placeholder="Jordy Blue">
@@ -100,28 +137,6 @@
           <option value="sound">sound</option>
         </select>
       </div>
-    </div>
-    <div class="c-card-history">
-      <table class="js-table c-table">
-        <tr>
-          <th class="c-table__head">Time</th>
-          <th class="c-table__head">Type</th>
-          <th class="c-table__head">Value</th>
-          <th class="c-table__head">Description</th>
-        </tr>
-        <tr>
-          <td class="c-table__values">22/03/2023 <br>08:05:00</td>
-          <td class="c-table__values">sensor</td>
-          <td class="c-table__values">2G</td>
-          <td class="c-table__values">Measures the speed at which the cube has been moved</td>
-        </tr>
-        <tr>
-          <td class="c-table__values">22/03/2023<br>08:05:00</td>
-          <td class="c-table__values">actuator</td>
-          <td class="c-table__values">True</td>
-          <td class="c-table__values">Shows if the ledstrip in the cube is on (True) or off (False)</td>
-        </tr>
-      </table>
     </div>
   </main>
 

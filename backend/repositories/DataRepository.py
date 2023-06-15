@@ -56,3 +56,10 @@ class DataRepository:
         params = [time, senderid, receiverid, hexcode, message]
         return Database.execute_sql(sql, params)
 
+    def get_recent_messages():
+        sql = "SELECT ChatHistoryId, DATE_FORMAT(Tijdstip,'%Y-%m-%d %H:%i:%S') as `Tijdstip`, SenderCubeId, ReceiverCubeId, Hexcode, Message FROM ChatMessage ORDER BY `Tijdstip` desc LIMIT 2"
+        return Database.get_rows(sql)
+    
+    def get_message_amount():
+        sql = "SELECT DATE_FORMAT(Tijdstip,'%Y-%m-%d %H:%i:%S') as `Tijdstip` , SenderCubeID, count(*) as `totaal` FROM ChatMessage WHERE Tijdstip > now() - interval 6 day GROUP BY date(Tijdstip), SenderCubeId order by date(`Tijdstip`) asc, SenderCubeId asc;"
+        return Database.get_rows(sql)
