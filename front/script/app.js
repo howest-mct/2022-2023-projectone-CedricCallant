@@ -171,10 +171,20 @@ const showChats = function (jsonObject) {
 
 const showGraph = function (jsonObject) {
   // console.info(jsonObject)
-  const name_cube = jsonObject[0]['Username']
-  const help_cube = jsonObject[0]['SenderCubeID']
+  let name_cube = jsonObject[0]['Username']
+  let help_cube = jsonObject[0]['SenderCubeID']
   let name_cube2 = ''
   let help_cube2 = ''
+
+  for(let m of jsonObject){
+    if(m.IsMain){
+      name_cube = m.Username
+      help_cube = m.SenderCubeID
+    }else{
+      name_cube2 = m.Username
+      help_cube2 = m.SenderCubeID
+    }
+  }
 
   // let converted_labels = []
   let last_time;
@@ -183,37 +193,54 @@ const showGraph = function (jsonObject) {
   let converted_data_cube1 = []
   let converted_data_cube2 = []
   for (const dag of jsonObject) {
-    if (help_cube2 == '') {
-      if (help_cube != dag.SenderCubeID) {
-        name_cube2 = dag.Username
-        help_cube2 = dag.SenderCubeID
-      }
-    }
     console.info(name_cube)
-    if (last_time != dag.Tijdstip.substring(0, 10)) {
-      converted_labels.push(dag.Tijdstip.substring(0, 10))
-      last_time = dag.Tijdstip.substring(0, 10)
-      if (date_saved & dag.SenderCubeID == help_cube & converted_data_cube1.length != converted_data_cube2.length) {
-        converted_data_cube2.push(0)
-        date_saved = false
-      }
-      if (dag.SenderCubeID == help_cube) {
-        converted_data_cube1.push(dag.totaal)
-        date_saved = true
+    if (help_cube == cubeid) {
+      if (last_time != dag.Tijdstip.substring(0, 10)) {
+        converted_labels.push(dag.Tijdstip.substring(0, 10))
+        last_time = dag.Tijdstip.substring(0, 10)
+        if (date_saved & dag.SenderCubeID == help_cube & converted_data_cube1.length != converted_data_cube2.length) {
+          converted_data_cube2.push(0)
+          date_saved = false
+        }
+        if (dag.SenderCubeID == help_cube) {
+          converted_data_cube1.push(dag.totaal)
+          date_saved = true
+        } else {
+          converted_data_cube1.push(0)
+          converted_data_cube2.push(dag.totaal)
+        }
       } else {
-        converted_data_cube1.push(0)
         converted_data_cube2.push(dag.totaal)
       }
-    } else {
-      converted_data_cube2.push(dag.totaal)
+    } else{
+      if (last_time != dag.Tijdstip.substring(0, 10)) {
+        converted_labels.push(dag.Tijdstip.substring(0, 10))
+        last_time = dag.Tijdstip.substring(0, 10)
+        if (date_saved & dag.SenderCubeID == help_cube & converted_data_cube1.length != converted_data_cube2.length) {
+          converted_data_cube2.push(0)
+          date_saved = false
+        }
+        if (dag.SenderCubeID == help_cube) {
+          converted_data_cube1.push(dag.totaal)
+          date_saved = true
+        } else {
+          converted_data_cube1.push(0)
+          converted_data_cube2.push(dag.totaal)
+        }
+      } else {
+        converted_data_cube2.push(dag.totaal)
+      }
     }
+
   }
   console.info(converted_data_cube1)
+  console.info(converted_data_cube2)
+  console.info(converted_labels)
   drawchart(converted_data_cube1, converted_data_cube2, converted_labels, name_cube, name_cube2)
 }
 
 const drawchart = function (data_cube1, data_cube2, label, cube1, cube2) {
-  
+
   var options = {
     series: [{
       name: cube1,

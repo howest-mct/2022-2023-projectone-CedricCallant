@@ -43,7 +43,7 @@ class DataRepository:
         return Database.get_rows(sql)
     
     def get_most_used_colors(cubedevice):
-        sql = 'SELECT value, count(*) as `times used` fROM History where CubeDeviceId = %s and value is not NULL group by value order by `times used` desc limit 10'
+        sql = 'SELECT value, count(*) as `times used` fROM History where CubeDeviceId = %s and value regexp "^#" and value is not NULL group by value order by `times used` desc limit 10'
         params = [cubedevice]
         return Database.get_rows(sql, params)
     
@@ -61,5 +61,5 @@ class DataRepository:
         return Database.get_rows(sql)
     
     def get_message_amount():
-        sql = "SELECT DATE_FORMAT(ch.Tijdstip,'%Y-%m-%d %H:%i:%S') as `Tijdstip` , ch.SenderCubeID, count(*) as `totaal`, c.Username FROM ChatMessage ch join Cube c on ch.SenderCubeID = c.CubeId WHERE Tijdstip > now() - interval 6 day GROUP BY date(Tijdstip), SenderCubeId order by date(`Tijdstip`) asc, SenderCubeId asc;"
+        sql = "SELECT DATE_FORMAT(ch.Tijdstip,'%Y-%m-%d %H:%i:%S') as `Tijdstip` , ch.SenderCubeID, count(*) as `totaal`, c.Username, c.IsMain FROM ChatMessage ch join Cube c on ch.SenderCubeID = c.CubeId WHERE DATE(Tijdstip) > DATE(now()) - interval 7 day GROUP BY date(Tijdstip), SenderCubeId order by date(`Tijdstip`) asc, SenderCubeId asc;;"
         return Database.get_rows(sql)
