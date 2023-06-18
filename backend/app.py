@@ -18,10 +18,16 @@ tcL = 20
 tcM = 16
 tcR = 12
 
+motor = 26
+
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(tcL, GPIO.IN)
 GPIO.setup(tcM, GPIO.IN)
 GPIO.setup(tcR, GPIO.IN)
+GPIO.setup(motor, GPIO.OUT)
+motor_pwm = GPIO.PWM(motor, 1000)
+
+motor_pwm.start(0)
 
 def hex_to_dec(value):
     h = value[1:7]
@@ -88,20 +94,20 @@ def set_led_mode(led_mode = led_mode):
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
             print('ledmode set to static')
-            return DataRepository.add_to_history(12,6)
+            return DataRepository.add_to_history(12,7, 'static')
     elif led_mode == 'pulse':
         leds.pulse(led_color)
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
             print('ledmode set to pulse')
-            return DataRepository.add_to_history(12,5)
+            return DataRepository.add_to_history(12,7,'pulse')
     elif led_mode == 'wave':
         leds.set_Brightness(0.3)
         leds.wave(led_color)
         if led_mode != led_prev_mode:
             led_prev_mode = led_mode
             print('ledmode set to wave')
-            return DataRepository.add_to_history(12,7)
+            return DataRepository.add_to_history(12,7,'wave')
 
 
 app = Flask(__name__)
@@ -170,9 +176,11 @@ def all_out():
                     elif rState == 1:
                         print("plus")
                         colorcycle +=1
-                        if colorcycle > len(most_used_colors):
+                        if colorcycle >= len(most_used_colors):
                             colorcycle = 0
+                    print(hex_to_dec(most_used_colors[0]))
                     led_color = hex_to_dec(most_used_colors[colorcycle-1])
+                    
                     touchTimer = time.time()
                 lPrevState = lState
                 rPrevState = rState
@@ -196,6 +204,13 @@ def all_out():
             msg_info = f'You received {len(messages)} messages'
             lcd.lcd_display_string(string=msg_info[0:16])
             lcd.lcd_display_string(msg_info[16:len(msg_info)],2)
+            motor_pwm.ChangeDutyCycle(90)
+            time.sleep(0.5)
+            motor_pwm.ChangeDutyCycle(0)
+            time.sleep(0.4)
+            motor_pwm.ChangeDutyCycle(100)
+            time.sleep(0.7)
+            motor_pwm.ChangeDutyCycle(0)
             cardid = reader.read_id()
             if cardid == cubeid:
                 if len(messages) == 1:
@@ -314,8 +329,11 @@ def start_thread():
         time.sleep(0.5)
         lcd.lcd_display_string('   ',1,8)
     lcd.lcd_clear()
-    ip_displayed = 0
+    motor_pwm.ChangeDutyCycle(100)
+    time.sleep(0.5)
+    motor_pwm.ChangeDutyCycle(0)
     print("threads started")
+    ip_displayed = 0
 
 # API ENDPOINTS
 @app.route('/')
@@ -512,6 +530,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('KeyboardInterrupt exception is caught')
     finally:
+        GPIO.cleanup()
         leds.clear_leds()
         ser.close()
         print("finished")
