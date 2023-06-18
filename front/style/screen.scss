@@ -215,6 +215,7 @@ h1 {
 h2 {
   font-size: $ms8;
   line-height: calc($baseline * 3);
+  margin-top: 16px;
   margin-bottom: $space-m;
   font-weight: 400;
 }
