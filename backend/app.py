@@ -17,8 +17,10 @@ import serial
 tcL = 20
 tcM = 16
 tcR = 12
-
+sound_detection = 21
 motor = 26
+
+cubeid = '29F0889C'
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(tcL, GPIO.IN)
@@ -48,8 +50,8 @@ def get_idle_mode(help):
     elif help['ActieId'] == 8:
         return False
 
-cubeid = '29F0889C'
-sound_detection = 21
+
+
 idle_mode = get_idle_mode(DataRepository.get_last_idle_state(1,8,12))
 last_known_event = DataRepository.get_last_events(cubeid)
 help_muc = DataRepository.get_most_used_colors(12)
@@ -142,9 +144,9 @@ def all_out():
     colorcycle = 0
     touchTimer = time.time()
     while True:
+        mState = GPIO.input(tcM)
         if not message_received:
             lState = GPIO.input(tcL)
-            mState = GPIO.input(tcM)
             rState = GPIO.input(tcR)
             if not ip_displayed:
                 ips = str(check_output(['hostname', '--all-ip-addresses']))
@@ -218,8 +220,13 @@ def all_out():
                     message_timer = time.time()
                     display_msg_color = True
                     while message_timer + 60 >= time.time():
-                        lcd.lcd_display_string(messages[0]['message'][0:16])
-                        lcd.lcd_display_string(messages[0]['message'][16:len(messages[0]['message'])], 2)
+                        mState = GPIO.input(tcM)
+                        if mState:
+                            break
+                        else:
+                            print(mState)
+                            lcd.lcd_display_string(messages[0]['message'][0:16])
+                            lcd.lcd_display_string(messages[0]['message'][16:len(messages[0]['message'])], 2)
                     display_msg_color = False
                     lcd.lcd_clear()
                 message_received = 0
@@ -373,16 +380,25 @@ def get_chart():
     else:
         return jsonify(error = 'messages not found')
 
-@app.route('/history/small/<id>/')
-def get_small_history(id):
-    data = DataRepository.get_last_events(id)
+@app.route('/chathistory/')
+def get_chathistory():
+    data = DataRepository.get_message_history()
+    if data != None:
+        return jsonify(data), 200
+    else:
+        return jsonify(error = "Couldn't fetch data"), 404
+
+@app.route('/history/<id>/')
+def get_history(id):
+    data = DataRepository.get_history(id)
     if data is not None:
-        if len(data) == 2:
+        if len(data) != 0:
             return jsonify(data), 200
         else:
             return jsonify(error = 'CubeId niet gevonden'), 404
     else:
         return jsonify(error = 'Kon data niet ophalen :('), 500
+
 
 # SOCKET IO
 @socketio.on('connect')

@@ -128,22 +128,43 @@ const showError = function (err) {
 }
 
 const showHistory = function (jsonObject) {
-  let htmlString = `<tr>
-  <th class="c-table__head">Time</th>
-  <th class="c-table__head">Type</th>
-  <th class="c-table__head">Value</th>
-  <th class="c-table__head">Description</th>
+  console.info(jsonObject)
+  let htmlString = `    <tr class="c-card-history__row">
+  <th>Time</th>
+  <th>Description</th>
 </tr>`
   for (let t of jsonObject) {
     htmlString += `
-  <tr>
-    <td class="c-table__values">${cleanupTime(t.Time)}</td>
-    <td class="c-table__values">${t.Type}</td>
-    <td class="c-table__values">${cleanupValue(t.Value)}</td>
-    <td class="c-table__values">${t.Description}</td>
+  <tr class="c-card-history__row">
+    <td>${t.Time}</td>
+    <td>${t.Description}</td>
   </tr>`
   }
+  console.info(document.querySelector('.js-table'))
   document.querySelector('.js-table').innerHTML = htmlString
+}
+
+const showChatHistory = function(jsonObject){
+  console.info(jsonObject)
+  let htmlString = `<tr class="c-card-history__row">
+  <th>Time</th>
+  <th>Sender</th>
+  <th>Receiver</th>
+  <th>ColorCode</th>
+  <th>Message</th>
+</tr>`
+  for(let c of jsonObject){
+    console.info(c)
+    htmlString += `<tr class="c-card-history__row">
+    <td>${c.Tijdstip}</td>
+    <td>${c.suser}</td>
+    <td>${c.ruser}</td>
+    <td>${c.Hexcode}</td>
+    <td>${c.Message}</td>
+  </tr>`
+  }
+  console.info(htmlString)
+  document.querySelector('.js-table-chat').innerHTML = htmlString
 }
 
 const showChats = function (jsonObject) {
@@ -560,10 +581,8 @@ const listenToSocket = function () {
 
 const init = function () {
   console.info('DOM geladen');
-  listenToUI();
-  listenToSocket();
+  const urlparams = new URLSearchParams(window.location.search);
   if (document.querySelector('.js-home')) {
-    const urlparams = new URLSearchParams(window.location.search);
     if (urlparams == 0) {
       window.location.href = 'inlog.html'
     } else {
@@ -597,7 +616,6 @@ const init = function () {
     </li>`
     }
   } else if (document.querySelector('.js-chat')) {
-    const urlparams = new URLSearchParams(window.location.search);
     if (urlparams == 0) {
       window.location.href = 'inlog.html'
     } else {
@@ -630,7 +648,17 @@ const init = function () {
         </svg><a class="c-nav__link" href="#?userid=${cubeid}">Settings</a></div>
     </li>`
     }
+  } else if (document.querySelector('.js-history')){
+    if (urlparams == 0) {
+      window.location.href = 'inlog.html'
+    } else{
+      cubeid = urlparams.get('userid')
+      handleData(`http://${window.location.hostname}:5000/history/${cubeid}/`, showHistory, showError)
+      handleData(`http://${window.location.hostname}:5000/chathistory/`, showChatHistory, showError)
+    }
   }
+  listenToUI();
+  listenToSocket();
 };
 
 document.addEventListener('DOMContentLoaded', init);
