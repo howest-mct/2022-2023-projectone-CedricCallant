@@ -20,11 +20,11 @@
       <a href="javascript:void(0)" class="c-closebtn" onclick="closeNav()">&times;</a>
 
       <!-- Overlay content -->
-      <div class="c-overlay__content">
-        <a href="#">Home</a>
-        <a href="#">Chat</a>
-        <a href="#">History</a>
-        <a href="#">Settings</a>
+      <div class="js-navigation c-overlay__content">
+        <a href="index.html">Home</a>
+        <a href="chat.html">Chat</a>
+        <a href="history.html">History</a>
+        <a href="settings.html">Settings</a>
       </div>
 
       <!-- Use any element to open/show the overlay navigation menu -->
@@ -36,16 +36,16 @@
       <h1 class="c-logo__name">CommCubes</h1>
 
       <nav class="c-nav">
-        <ul class="c-nav__list o-list-reset">
+        <ul class="js-navbar c-nav__list o-list-reset">
           <li>
             <div class="c-nav__item js-nav__home"><svg class="c-nav__svg o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                 <path d="M 16 2.59375 L 15.28125 3.28125 L 2.28125 16.28125 L 3.71875 17.71875 L 5 16.4375 L 5 28 L 14 28 L 14 18 L 18 18 L 18 28 L 27 28 L 27 16.4375 L 28.28125 17.71875 L 29.71875 16.28125 L 16.71875 3.28125 Z M 16 5.4375 L 25 14.4375 L 25 26 L 20 26 L 20 16 L 12 16 L 12 26 L 7 26 L 7 14.4375 Z" />
               </svg><a class="c-nav__link" href="index.html">Home</a></div>
           </li>
           <li>
-            <div class="c-nav__item c-nav__item--selected js-nav__chat"><svg class="c-nav__svg c-nav__svg--selected o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <div class="c-nav__item  c-nav__item--selected  js-nav__chat"><svg class="c-nav__svg  c-nav__svg--selected o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                 <path d="M 3 5 L 3 23 L 8 23 L 8 28.078125 L 14.351563 23 L 29 23 L 29 5 Z M 5 7 L 27 7 L 27 21 L 13.648438 21 L 10 23.917969 L 10 21 L 5 21 Z" />
-              </svg><a class="c-nav__link c-nav__link--selected" href="chat.html">Chat</a></div>
+              </svg><a class="c-nav__link  c-nav__link--selected" href="chat.html">Chat</a></div>
           </li>
           <li>
             <div class="c-nav__item js-nav__history"><svg class="c-nav__svg o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
@@ -219,7 +219,7 @@
         <button class="js-colorDecision__back o-button-reset"><svg class="o-basic-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
             <path d="M 19.03125 4.28125 L 8.03125 15.28125 L 7.34375 16 L 8.03125 16.71875 L 19.03125 27.71875 L 20.46875 26.28125 L 10.1875 16 L 20.46875 5.71875 Z" />
           </svg></button>
-          <button class="js-sendbtn c-colorDecision__sendbtn o-button-reset">Send Message</button>
+        <button class="js-sendbtn c-colorDecision__sendbtn o-button-reset">Send Message</button>
         <p class="c-colorPicker__head">Choose your color</p>
         <div class="js-color-colorname c-colorDecision__colors">
           <button class="c-colorDecision__color o-button-reset">This is a colorname</button>

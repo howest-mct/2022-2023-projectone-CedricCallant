@@ -1,5 +1,6 @@
 import threading
 import time
+import os
 from datetime import datetime
 from subprocess import check_output
 from repositories.DataRepository import DataRepository
@@ -222,6 +223,7 @@ def all_out():
                     while message_timer + 60 >= time.time():
                         mState = GPIO.input(tcM)
                         if mState:
+                            messages.pop(0)
                             break
                         else:
                             print(mState)
@@ -243,7 +245,7 @@ def led_thread():
         if not message_received:
             if not lamp:
                 if leds_on:
-                    set_led_mode()
+                    set_led_mode(led_mode)
                 else:
                     leds.clear_leds()
             else:
@@ -392,7 +394,7 @@ def get_chathistory():
 @app.route('/username/<id>/', methods=['PUT'])
 def set_username(id):
     input = DataRepository.json_or_formdata(request)
-    data = DataRepository.update_username(input['new_name'])
+    data = DataRepository.update_username(input['new_name'],id)
     if data != None:
         return jsonify(Succes = data), 202
     else:
@@ -546,7 +548,11 @@ def receive_msg(jsonObject):
         else:
             emit('B2F_message_error', {'error': 'Something went wrong when sending the message'})
     
-
+@socketio.on('F2B_turn_off')
+def turn_off(jsonObject):
+    print(jsonObject)
+    if jsonObject['state'] == 'off':
+        os.system('sudo shutdown now')
 
 if __name__ == '__main__':
     try:
