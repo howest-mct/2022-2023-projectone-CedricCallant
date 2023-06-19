@@ -581,6 +581,7 @@ const listenToSocket = function () {
 
 const init = function () {
   console.info('DOM geladen');
+  console.info(window.location.hostname);
   const urlparams = new URLSearchParams(window.location.search);
   if (document.querySelector('.js-home')) {
     if (urlparams == 0) {

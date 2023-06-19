@@ -383,6 +383,7 @@ def get_chart():
 @app.route('/chathistory/')
 def get_chathistory():
     data = DataRepository.get_message_history()
+    print(data)
     if data != None:
         return jsonify(data), 200
     else:
