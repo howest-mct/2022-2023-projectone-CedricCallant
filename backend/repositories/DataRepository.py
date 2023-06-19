@@ -63,3 +63,17 @@ class DataRepository:
     def get_message_amount():
         sql = "SELECT DATE_FORMAT(ch.Tijdstip,'%Y-%m-%d %H:%i:%S') as `Tijdstip` , ch.SenderCubeID, count(*) as `totaal`, c.Username, c.IsMain FROM ChatMessage ch join Cube c on ch.SenderCubeID = c.CubeId WHERE DATE(Tijdstip) > DATE(now()) - interval 7 day GROUP BY date(Tijdstip), SenderCubeId order by date(`Tijdstip`) asc, SenderCubeId asc;;"
         return Database.get_rows(sql)
+
+    def get_history(cubeid):
+        sql = "SELECT DATE_FORMAT(h.Time,'%Y-%m-%d %H:%i:%S') as `Time`, a.Description FROM History h join Action a on a.ActionId = h.ActieId join CubeDevice cd on cd.CubeDeviceId = h.CubeDeviceId join Cube c on c.CubeId = cd.CubeId where c.CubeId = %s order by Time desc limit 50"
+        params = [cubeid]
+        return Database.get_rows(sql, params)
+    
+    def get_message_history():
+        sql = "SELECT DATE_FORMAT(ch.Tijdstip,'%Y-%m-%d %H:%i:%S') as `Tijdstip`, c.username as suser, r.username as 'ruser', ch.Hexcode, ch.Message FROM ChatMessage ch  join Cube c on ch.SenderCubeID = c.CubeId  join Cube r on ch.ReceiverCubeID = r.CubeId order by date(`Tijdstip`) desc;"
+        return Database.get_rows(sql)
+    
+    def update_username(username, id):
+        sql = "UPDATE Cube SET username = %s WHERE CubeId = %s"
+        params = [username, id]
+        return Database.execute_sql(sql, params)
