@@ -269,7 +269,7 @@ def esp_thread():
         
         if(not stop_polling):
             info = ser.readline().decode('utf-8')
-            print(info)
+            # print(info)
             if info == "":
                 pass
             elif info[0:3] == 'mpu':
