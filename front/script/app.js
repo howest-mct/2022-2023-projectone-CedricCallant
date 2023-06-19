@@ -449,6 +449,12 @@ const listenToUI = function () {
     document.querySelector('.js-colorDecision__back').addEventListener('click', function () {
       document.querySelector('.js-colorDecision').style.display = 'none'
     })
+  } else if (document.querySelector('.js-settings')){
+    document.querySelector('.js-updatenamebtn').addEventListener('click', function(){
+      const new_username = document.querySelector('.js-set_username').value
+      const body = JSON.stringify({new_name: new_username})
+      handleData(`http://${window.location.hostname}:5000/username/${cubeid}`, showSucces, showError, 'PUT', body)
+    })
   }
   if (!document.querySelector('.js-login')) {
     document.querySelector('.js-nav__home').addEventListener('click', function () {

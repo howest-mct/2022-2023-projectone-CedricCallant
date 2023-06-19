@@ -389,6 +389,15 @@ def get_chathistory():
     else:
         return jsonify(error = "Couldn't fetch data"), 404
 
+@app.route('/username/<id>/', methods=['PUT'])
+def set_username(id):
+    input = DataRepository.json_or_formdata(request)
+    data = DataRepository.update_username(input['new_name'])
+    if data != None:
+        return jsonify(Succes = data), 202
+    else:
+        return jsonify(Error = 'Nothing changed'), 500
+
 @app.route('/history/<id>/')
 def get_history(id):
     data = DataRepository.get_history(id)
